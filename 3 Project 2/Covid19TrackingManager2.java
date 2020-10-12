@@ -30,7 +30,10 @@ public class Covid19TrackingManager2 {
      * @param args
      */
     public static void main(String[] args) {
-        
+       
+        String a = "20200815";
+        String b = "20200911";
+        System.out.println(a.compareTo(b));
 
     }
 

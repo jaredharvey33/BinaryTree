@@ -1,70 +1,58 @@
-class BSTNode<K, E> {
-    private K key;
-    private E element;
-    private BSTNode<K, E> left;
-    private BSTNode<K, E> right;
+/** BST implementation for Dictionary ADT */
+class BST<K extends Comparable<? super K>, E> {
+    private BSTNode<K, E> root; // Root of BST intnodecount; // Size of BST /**
+                                // Constructor */ BST() { root = null; nodecount
+                                // = 0; } /** Reinitialize tree */ public void
+                                // clear() { root = null; nodecount = 0; } /**
+                                // Insert a record into the tree. @param k Key
+                                // value of the record. @param e The record to
+                                // insert. */ public void insert(K k, E e) {
+                                // root = inserthelp(root, k, e); nodecount++; }
 
-    public BSTNode() {
-        left = right = null;
+    /**
+     * Remove a record from the tree.
+     * 
+     * @param k
+     *            Key value of record to remove.
+     * @return Record removed, or null if
+     *         there is none.
+     */
+    public E remove(K k) {
+        E temp = findhelp(root, k); // find it if (temp != null) { root =
+                                    // removehelp(root, k); // remove it
+                                    // nodecount--; } return temp; }
     }
 
 
-    public BSTNode(K k, E val) {
-        left = right = null;
-        key = k;
-        element = val;
+    /**
+     * Remove/return root node from dictionary. @return The record removed, null
+     * if empty.
+     */
+    public E removeAny() {
+        if (root != null) {
+            E temp = root.element();
+            root = removehelp(root, root.key());
+            nodecount--;
+            return temp;
+        }
+        else
+            return null;
     }
 
 
-    public BSTNode(K k, E val, BSTNode<K, E> l, BSTNode<K, E> r) {
-        left = l;
-        right = r;
-        key = k;
-        element = val;
+    /**
+     * @return Record with key k, null if none. @param k The key value to find.
+     */
+    public E find(K k) {
+        return findhelp(root, k);
     }
 
 
-    public K key() {
-        return key;
+    /** @return Number of records in dictionary. */
+    public int size() {
+        return nodecount;
     }
 
-
-    public K setKey(K k) {
-        return key = k;
     }
 
-
-    public E element() {
-        return element;
-    }
-
-
-    public E setElement(E v) {
-        return element = v;
-    }
-
-
-    public BSTNode<K, E> left() {
-        return left;
-    }
-
-
-    public BSTNode<K, E> setLeft(BSTNode<K, E> p) {
-        return left = p;
-    }
-
-
-    public BSTNode<K, E> right() {
-        return right;
-    }
-
-
-    public BSTNode<K, E> setRight(BSTNode<K, E> p) {
-        return right = p;
-    }
-
-
-    public boolean isLeaf() {
-        return (left == null) && (right == null);
-    }
-}
+private E findhelp(BSTNode<K,E> rt, K k) {   if (rt == null) return null;   if (rt.key().compareTo(k) > 0)     return findhelp(rt.left(), k);   else if (rt.key().compareTo(k) == 0)     return rt.element();   else return findhelp(rt.right(), k); }
