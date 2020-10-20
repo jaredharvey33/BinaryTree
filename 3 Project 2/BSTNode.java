@@ -87,13 +87,18 @@ public class BSTNode<K, E> {
      * @return The height of this tree.
      */
     public int getHeight() {
+        // Base case
+        if (left == null && right == null) {
+            return 0;
+        }
+
         int leftHeight = 0;
         int rightHeight = 0;
         if (left != null) {
-        leftHeight = left.getHeight();
+            leftHeight = left.getHeight();
         }
         if (right != null) {
-        rightHeight = right.getHeight();
+            rightHeight = right.getHeight();
         }
 
         if (leftHeight > rightHeight) {
