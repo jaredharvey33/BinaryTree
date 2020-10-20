@@ -11,7 +11,7 @@
  * @version 2020.10.20
  *
  */
-public class BSTNode<K extends KeyVector<?, ?, ?>, E> {
+public class BSTNode<K, E> {
     private K key;
     private E element;
     private BSTNode<K, E> left;
@@ -87,27 +87,20 @@ public class BSTNode<K extends KeyVector<?, ?, ?>, E> {
      * @return The height of this tree.
      */
     public int getHeight() {
-        int height = 1;
-
-        // Base case: current node has 0 children
-        if (right == null && left == null) {
-            return height;
+        int leftHeight = 0;
+        int rightHeight = 0;
+        if (left != null) {
+        leftHeight = left.getHeight();
+        }
+        if (right != null) {
+        rightHeight = right.getHeight();
         }
 
-        if (right != null && left != null) {
-            height = height + Math.max(left.getHeight(), right.getHeight());
+        if (leftHeight > rightHeight) {
+            return leftHeight + 1;
         }
-
-        // Recursive case 1: current node has 1 child on the left
-        else if (left != null) {
-            height = height + left.getHeight();
-        }
-
-        // Recursive Case 2: current node has 1 child on the right
         else {
-            height = height + right.getHeight();
+            return rightHeight + 1;
         }
-
-        return height;
     }
 }
