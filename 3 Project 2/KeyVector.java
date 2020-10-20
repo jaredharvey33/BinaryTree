@@ -10,13 +10,19 @@
  * @version 2020.10.12
  *
  */
-@SuppressWarnings("rawtypes")
 public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 extends Comparable<K3>>
-    implements Comparable<KeyVector> {
+    implements Comparable<KeyVector<?, ?, ?>> {
 
     private K1 key1;
     private K2 key2;
     private K3 key3;
+
+    public KeyVector() {
+        key1 = null;
+        key2 = null;
+        key3 = null;
+    }
+
 
     public KeyVector(K1 k1, K2 k2) {
         key1 = k1;
@@ -87,15 +93,14 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
      * @param o
      * @return
      */
-    @SuppressWarnings("unchecked")
-    @Override
-    public int compareTo(KeyVector kv) {
+    public int compareTo(KeyVector<?, ?, ?> kv) {
         if (this.key1.compareTo((K1)kv.getKey1()) < 0) {
             return -1;
         }
         else if (key1.compareTo((K1)kv.getKey1()) > 0) {
             return 1;
         }
+
         else {
             if (this.key2.compareTo((K2)kv.getKey2()) < 0) {
                 return -1;
@@ -103,6 +108,7 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
             else if (key2.compareTo((K2)kv.getKey2()) > 0) {
                 return 1;
             }
+
             else {
                 if (key3 == null) {
                     return 0;
@@ -120,4 +126,5 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
         }
 
     }
+
 }

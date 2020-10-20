@@ -95,6 +95,16 @@ public class Record implements Comparable<Record> {
     }
 
 
+    public String toStringSD() {
+        return "<" + state + ", " + dateToString(date) + "> " + positive;
+    }
+
+
+    public String toStringDS() {
+        return "<" + dateToString(date) + ", " + state + "> " + positive;
+    }
+
+
     /**
      * Method to get field values that possibly need to be updated by more
      * recent data
@@ -387,6 +397,14 @@ public class Record implements Comparable<Record> {
         else {
             return 0;
         }
+    }
+
+
+    public static String dateToString(int d) {
+        String date = String.valueOf(d);
+        String formatted = date.substring(4, 6) + "/" + date.substring(6, 8)
+            + "/" + date.substring(0, 4);
+        return formatted;
     }
 
 }
