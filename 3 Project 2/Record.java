@@ -93,22 +93,37 @@ public class Record implements Comparable<Record> {
             + "," + death;
 
     }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////// TABS
+
+
+    /**
+     * Prints the information for a record with tabs
+     * 
+     * @return The formatted information for a record
+     */
     public String toStringTab() {
-        return date + "," + state + "," + positive + "," + negative + ","
-            + hospitalized + "," + onVentilatorCurrently + ","
-            + onVentilatorCumulative + "," + recovered + "," + dataQualityGrade
-            + "," + death;
+        return  state + "\t" + dateToString(date) + "\t" + positive + "\t" + negative + "\t"
+            + hospitalized + "\t" + onVentilatorCurrently + "\t"
+            + onVentilatorCumulative + "\t" + recovered + "\t"
+            + dataQualityGrade + "\t" + death;
 
     }
 
 
+    /**
+     * Prints the state,date and positive cases
+     * 
+     * @return string of state,date and positive cases
+     */
     public String toStringSD() {
         return "<" + state + ", " + dateToString(date) + "> " + positive;
     }
 
 
+    /**
+     * Prints the date,state and positive cases
+     * 
+     * @return string of date,state and positive cases
+     */
     public String toStringDS() {
         return "<" + dateToString(date) + ", " + state + "> " + positive;
     }
@@ -409,6 +424,13 @@ public class Record implements Comparable<Record> {
     }
 
 
+    /**
+     * Converts integer date of record to formatted string value
+     * 
+     * @param d
+     *            date to convert
+     * @return converted date
+     */
     public static String dateToString(int d) {
         String date = String.valueOf(d);
         String formatted = date.substring(4, 6) + "/" + date.substring(6, 8)

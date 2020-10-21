@@ -1,12 +1,17 @@
 import java.util.ArrayList;
 
+//Virginia Tech Honor Code Pledge:
+//
+//As a Hokie, I will conduct myself with honor and integrity at all times.
+//I will not lie, cheat, or steal, nor will I accept the actions of those who
+//do.
+//-- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+
 /**
- * This class tests the methods in the Record class.
- * 
- * @author Jared Harvey (jharvey33), Ren Robinson (rarobin98)
- * @version 2020.09.24
- *
- */
+* @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+* @version 2020.10.20
+*
+*/
 public class RecordTest extends student.TestCase {
 
     private Record r1;
@@ -14,6 +19,8 @@ public class RecordTest extends student.TestCase {
     private Record r3;
     private Record r4;
     private Record r5;
+    private Record r6;
+    String s;
 
     /**
      * sets up the tests classes.
@@ -26,6 +33,26 @@ public class RecordTest extends student.TestCase {
         r4 = new Record(1, "MD", 1, 1, 1, 1, 1, 1, "A", 1);
         r5 = new Record(1, "MD", -1, -1, -1, -1, -1, -1, "A", -1);
 
+        r6 = new Record(20200722, "VA", 1, 1, 1, 1, 1, 1, "A", 1);
+       
+    }
+
+
+    /**
+     * tests the toStringSD method
+     */
+    public void testToStringSD() {
+        assertEquals(r6.toStringSD(), "<VA, 07/22/2020> 1");
+
+    }
+
+
+    /**
+     * tests the toStringDS method
+     */
+    public void testToStringDS() {
+        assertEquals(r6.toStringDS(), "<07/22/2020, VA> 1");
+
     }
 
 
@@ -34,6 +61,24 @@ public class RecordTest extends student.TestCase {
      */
     public void testToString() {
         assertEquals(r1.toString(), "1,VA,1,1,1,1,1,1,A,1");
+
+    }
+
+
+    /**
+     * tests the dateToString method
+     */
+    public void testDateToString() {
+        assertEquals(Record.dateToString(r6.getDate()), "07/22/2020");
+
+    }
+
+
+    /**
+     * tests the toStringTab method
+     */
+    public void testToStringTab() {
+        assertEquals(r6.toStringTab(),"VA\t07/22/2020\t1\t1\t1\t1\t1\t1\tA\t1" );
 
     }
 

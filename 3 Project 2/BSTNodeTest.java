@@ -10,7 +10,28 @@
  *
  */
 public class BSTNodeTest {
-    
+        
+        private BSTNode n1;
+        
+        
+        swc 
+        
+        
+        /**
+         * sets up the tests classes.
+         */
+          
+        public void setUp() {
+          n1 = BSTNode<'String', 10>
+                 
+        }//end setUp
+        
+        public void testKey() {
+            assertEquals(n1.)
+        }
+        
+        
+    }
     
 
 }
