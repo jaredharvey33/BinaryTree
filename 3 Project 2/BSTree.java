@@ -75,22 +75,6 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
 
 
     /**
-     * Remove/return root node from dictionary. @return The record removed, null
-     * if empty.
-     */
-    public E removeAny() {
-        if (root != null) {
-            E temp = root.element();
-            root = removehelp(root, root.key());
-            nodecount--;
-            return temp;
-        }
-        else
-            return null;
-    }
-
-
-    /**
      * @return Record with key k, null if none. @param k The key value to find.
      */
     public E find(K k) {
@@ -119,7 +103,7 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     private BSTNode<K, E> inserthelp(BSTNode<K, E> rt, K k, E e) {
         if (rt == null)
             return new BSTNode<K, E>(k, e);
-        if (rt.key().compareTo(k) > 0)
+        if (rt.key().compareTo(k) < 0)
             rt.setLeft(inserthelp(rt.left(), k, e));
         else
             rt.setRight(inserthelp(rt.right(), k, e));
@@ -172,5 +156,4 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
         return rt;
     }
 
-    
 }

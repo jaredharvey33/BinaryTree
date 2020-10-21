@@ -104,9 +104,9 @@ public class Covid19TrackingManager2 {
                         Scanner check = new Scanner(new File(fn));
                         check.close();
                         load(fn, stateArray, curr);
-                        treeSD = loadTree(curr, 1);
-                        treeDS = loadTree(curr, 2);
-                        treeGDS = loadTree(curr, 3);
+                        treeSD = loadTree(curr, 1, stateArray);
+                        treeDS = loadTree(curr, 2, stateArray);
+                        treeGDS = loadTree(curr, 3, stateArray);
 
                     }
                     catch (FileNotFoundException e) {
@@ -116,8 +116,7 @@ public class Covid19TrackingManager2 {
             }
 
             else if (command.equalsIgnoreCase("search")) {
-                break;
-                // search(line, curr, stateArray);
+                search(splitLine, treeDS, stateArray);
             }
 
             else if (command.trim().equalsIgnoreCase("dumpBST")) {
@@ -156,7 +155,6 @@ public class Covid19TrackingManager2 {
      */
     public static boolean load(String fn, String[] st, ArrayList<Record> c) {
         int counter = 0;
-
         try {
             Scanner scan = new Scanner(new File(fn)); // Create Scanner
             scan.nextLine();
@@ -246,13 +244,14 @@ public class Covid19TrackingManager2 {
 
     public static BSTree<KeyVector<?, ?, ?>, Record> loadTree(
         ArrayList<Record> c,
-        int op) {
+        int op,
+        String[] st) {
 
         BSTree<KeyVector<?, ?, ?>, Record> tree = new BSTree<>();
         if (op == 1) {
             for (int i = 0; i < c.size(); i++) {
                 Record curr = c.get(i);
-                String state = curr.getState();
+                String state = abConversion(curr.getState(), st);
                 int date = curr.getDate();
                 KeyVector<String, Integer, Integer> kv = new KeyVector<>(state,
                     date, null);
@@ -262,7 +261,7 @@ public class Covid19TrackingManager2 {
         else if (op == 2) {
             for (int i = 0; i < c.size(); i++) {
                 Record curr = c.get(i);
-                String state = curr.getState();
+                String state = abConversion(curr.getState(), st);
                 int date = curr.getDate();
                 KeyVector<Integer, String, Integer> kv = new KeyVector<>(date,
                     state, null);
@@ -272,7 +271,7 @@ public class Covid19TrackingManager2 {
         else {
             for (int i = 0; i < c.size(); i++) {
                 Record curr = c.get(i);
-                String state = curr.getState();
+                String state = abConversion(curr.getState(), st);
                 String grade = curr.getDataQualityGrade();
                 int date = curr.getDate();
                 KeyVector<String, Integer, String> kv = new KeyVector<>(grade,
@@ -291,17 +290,18 @@ public class Covid19TrackingManager2 {
             System.out.println("No data available");
         }
         else {
-            System.out.println(tree.getRoot().getHeight());
             dumpBSTHelp(tree, tree.getRoot(), op);
+            System.out.println(tree.size() + " records have been printed");
         }
     }
 
 
-    private static void dumpBSTHelp(
+    public static void dumpBSTHelp(
         BSTree<KeyVector<?, ?, ?>, Record> tree,
         BSTNode<KeyVector<?, ?, ?>, Record> n,
         int op) {
         if (n != null) {
+            BSTNode<KeyVector<?, ?, ?>, Record> rt = tree.getRoot();
             String ln;
             if (op == 1) {
                 ln = n.element().toStringDS();
@@ -313,22 +313,24 @@ public class Covid19TrackingManager2 {
             // left
             dumpBSTHelp(tree, n.left(), op);
             if (n.left() == null && n.right() != null) {
-                for (int i = 0; i < n.getHeight(); i++) {
+                for (int i = 0; i < Math.abs(n.right().getHeight() - rt
+                    .getHeight()); i++) {
                     System.out.print("  ");
                 }
-                System.out.println("E\n");
+                System.out.println("E");
             }
 
-            for (int i = 0; i < n.getHeight(); i++) {
+            for (int i = 0; i < Math.abs(n.getHeight() - rt.getHeight()); i++) {
                 System.out.print("  ");
             }
             System.out.println(ln);
 
             if (n.left() != null && n.right() == null) {
-                for (int i = 0; i < n.getHeight(); i++) {
+                for (int i = 0; i < Math.abs(n.left().getHeight() - rt
+                    .getHeight()); i++) {
                     System.out.print("  ");
                 }
-                System.out.println("E\n");
+                System.out.println("E");
             }
 
             // right
@@ -348,69 +350,120 @@ public class Covid19TrackingManager2 {
      * @return boolean indicating method return
      */
     public static boolean search(
-        String line,
-        ArrayList<Record> curr,
+        String[] line,
+        BSTree<KeyVector<?, ?, ?>, Record> tree,
         String[] stateArray) {
-        if (line.equalsIgnoreCase("search")) {
-            if (curr.size() == 0) {
+        if (line.length == 1) {
+            if (tree.size() == 0) {
                 System.out.println("No available data");
             }
             else {
-                int topDate = sortByDate(curr).get(0).getDate();
-                ArrayList<Record> sorted = sortByState(curr, stateArray);
-                printTopDate(sorted, topDate);
+                int topDate = topDate(tree.getRoot());
+                int records = searchNone(topDate, tree.getRoot());
+                System.out.println(records
+                    + " records have been printed on date " + dateToString(
+                        topDate));
             }
-        }
-        else {
-            String[] searchSplit = line.split(" ");
-            if (searchSplit.length != 2) {
-                String state = getSearchState(searchSplit);
-                try {
-                    Integer.parseInt(searchSplit[searchSplit.length - 1]);
-
-                    if (Integer.parseInt(searchSplit[searchSplit.length
-                        - 1]) <= 0) {
-                        System.out.println(
-                            "Invalid command. # of records has to be positive");
-                    }
-
-                    else if (!validState(state, stateArray)) {
-                        System.out.println("State of " + state
-                            + " does not exist!");
-                    }
-
-                    else if (!containsState(state, curr, stateArray)) {
-                        System.out.println("There are no records from "
-                            + state);
-                    }
-                    else {
-                        findState(state, curr, stateArray, Integer.parseInt(
-                            searchSplit[searchSplit.length - 1]));
-                    }
-                }
-                catch (NumberFormatException e) {
-                    System.out.println("Discard invalid command name");
-                }
-            }
-            else {
-                String date = line.split(" ")[1];
-                if (!validDate(date)) {
-                    System.out.println("Discard invalid command name");
-                }
-                else if (!containsDate(date, curr)) {
-                    System.out.println("There are no records on " + date);
-                }
-
-                else {
-                    ArrayList<Record> stateSorted = sortByState(curr,
-                        stateArray);
-                    printTopDate(stateSorted, dateToInt(date));
-                }
-
-            }
-
+// }
+// else {
+// String[] searchSplit = line.split(" ");
+// if (searchSplit.length != 2) {
+// String state = getSearchState(searchSplit);
+// try {
+// Integer.parseInt(searchSplit[searchSplit.length - 1]);
+//
+// if (Integer.parseInt(searchSplit[searchSplit.length
+// - 1]) <= 0) {
+// System.out.println(
+// "Invalid command. # of records has to be positive");
+// }
+//
+// else if (!validState(state, stateArray)) {
+// System.out.println("State of " + state
+// + " does not exist!");
+// }
+//
+// else if (!containsState(state, curr, stateArray)) {
+// System.out.println("There are no records from "
+// + state);
+// }
+// else {
+// findState(state, curr, stateArray, Integer.parseInt(
+// searchSplit[searchSplit.length - 1]));
+// }
+// }
+// catch (NumberFormatException e) {
+// System.out.println("Discard invalid command name");
+// }
+// }
+// else {
+// String date = line.split(" ")[1];
+// if (!validDate(date)) {
+// System.out.println("Discard invalid command name");
+// }
+// else if (!containsDate(date, curr)) {
+// System.out.println("There are no records on " + date);
+// }
+//
+// else {
+// ArrayList<Record> stateSorted = sortByState(curr,
+// stateArray);
+// printTopDate(stateSorted, dateToInt(date));
+// }
+//
+// }
+//
         }
         return true;
+    }
+
+
+    public static int searchNone(
+        int date,
+        BSTNode<KeyVector<?, ?, ?>, Record> n) {
+        int count = 0;
+        if (n != null) {
+            count = count + searchNone(date, n.left());
+
+            if (n.element().getDate() == date) {
+                count++;
+                System.out.println(n.element().toString());
+            }
+
+            count = count + searchNone(date, n.right());
+        }
+        return count;
+    }
+
+
+    public static int topDate(BSTNode<KeyVector<?, ?, ?>, Record> n) {
+        int curr = n.element().getDate();
+
+        // Base case: current node has 0 children
+        if (n.right() == null && n.left() == null) {
+            return curr;
+        }
+
+        if (n.right() != null && n.left() != null) {
+            if (curr < Math.max(n.left().element().getDate(), n.right()
+                .element().getDate()))
+                curr = Math.max(n.left().element().getDate(), n.right()
+                    .element().getDate());
+        }
+
+        // Recursive case 1: current node has 1 child on the left
+        else if (n.left() != null) {
+            if (curr < n.left().element().getDate())
+                curr = n.left().element().getDate();
+        }
+
+        // Recursive Case 2: current node has 1 child on the right
+        else {
+            if (curr < n.left().element().getDate())
+                curr = n.left().element().getDate();
+        }
+
+        return curr;
     }
 
 

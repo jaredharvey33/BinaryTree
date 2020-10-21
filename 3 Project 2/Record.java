@@ -93,6 +93,15 @@ public class Record implements Comparable<Record> {
             + "," + death;
 
     }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////// TABS
+    public String toStringTab() {
+        return date + "," + state + "," + positive + "," + negative + ","
+            + hospitalized + "," + onVentilatorCurrently + ","
+            + onVentilatorCumulative + "," + recovered + "," + dataQualityGrade
+            + "," + death;
+
+    }
 
 
     public String toStringSD() {
