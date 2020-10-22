@@ -2,9 +2,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 // On my honor:
 //
 // - I have not used source code obtained from another student,
@@ -25,6 +29,7 @@ import java.util.Scanner;
 // during the discussion. I have violated neither the spirit nor
 // letter of this restriction
 // -- Ren Robinson (rarobin98)
+import java.util.zip.CRC32;
 
 /**
  * @author Ren Robinson (rarobin98)
@@ -73,13 +78,14 @@ public class Covid19TrackingManager2 {
 
         String[] stateArray = states.split("\r\n\r\n");
         // String fileName = args[0];
-        String fileName = "input1.txt";
+        String fileName = "input2.txt";
 
         Scanner scan = null;
         ArrayList<Record> curr = new ArrayList<Record>();
         BSTree<KeyVector<?, ?, ?>, Record> treeSD = new BSTree<>();
         BSTree<KeyVector<?, ?, ?>, Record> treeDS = new BSTree<>();
         BSTree<KeyVector<?, ?, ?>, Record> treeGDS = new BSTree<>();
+        BSTree<KeyVector<?, ?, ?>, Record> treeGSD = new BSTree<>();
 
         try {
             scan = new Scanner(new File(fileName));
@@ -107,6 +113,7 @@ public class Covid19TrackingManager2 {
                         treeSD = loadTree(curr, 1, stateArray);
                         treeDS = loadTree(curr, 2, stateArray);
                         treeGDS = loadTree(curr, 3, stateArray);
+                        treeGSD = loadTree(curr, 4, stateArray);
 
                     }
                     catch (FileNotFoundException e) {
@@ -116,7 +123,35 @@ public class Covid19TrackingManager2 {
             }
 
             else if (command.equalsIgnoreCase("search")) {
-                search(splitLine, treeDS, stateArray);
+                if (treeSD.size() == 0) {
+                    System.out.println("search Failed! No data available");
+                }
+                else if (splitLine.length == 1) { // search with no options
+                    int topDate = topDate(treeDS.getRoot());
+                    System.out.println(
+                        "date\tstate\tpositive\tnegative\thospitalized\t"
+                            + "onVentilatorCurrently\tonVentilatorCumulative\t"
+                            + "recovered\tdataQualityGrade\tdeath");
+                    int records = searchNone(topDate, treeDS.getRoot());
+                    System.out.println(records
+                        + " records have been printed on date " + dateToString(
+                            topDate));
+                }
+                else {
+                    if (splitLine[1].equalsIgnoreCase("-C")) {
+                        searchC(treeSD, Integer.parseInt(splitLine[2]));
+                    }
+                    else if (splitLine[1].equalsIgnoreCase("-Q") || splitLine[1]
+                        .equalsIgnoreCase("-S") || splitLine[1]
+                            .equalsIgnoreCase("-D") || splitLine[1]
+                                .equalsIgnoreCase("-N")) {
+                        searchQSDN(treeSD, treeDS, treeGDS, treeGSD, splitLine,
+                            stateArray);
+                    }
+                    else if (splitLine[1].equalsIgnoreCase("-T")) {
+                        searchT(treeSD, treeDS, splitLine, stateArray);
+                    }
+                }
             }
 
             else if (command.trim().equalsIgnoreCase("dumpBST")) {
@@ -198,7 +233,8 @@ public class Covid19TrackingManager2 {
                                 recovered, dataGrade, death);
                             Record old = isDuplicate(record, c);
                             if (old != null) {
-                                if (greaterGrade(record, old)) {
+                                if (greaterGrade(record.getDataQualityGrade(),
+                                    old.getDataQualityGrade())) {
                                     c.set(c.indexOf(old), record);
                                     System.out.println(
                                         "Data has been updated for " + state
@@ -242,6 +278,231 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * @param treeSD
+     * @param splitLine
+     */
+    public static void searchT(
+        BSTree<KeyVector<?, ?, ?>, Record> SD,
+        BSTree<KeyVector<?, ?, ?>, Record> DS,
+        String[] ln,
+        String[] st) {
+        BSTree<KeyVector<?, ?, ?>, Record> avg;
+        int topNum = 0;
+        int date = 0;
+        for (int i = 0; i < ln.length; i++) {
+            if (ln[i].equals("-T")) {
+                topNum = Integer.parseInt(ln[i + 1]);
+            }
+            if (ln[i].equals("-D")) {
+                try {
+                    if (validDate(ln[i + 1])) {
+                        int month = Integer.parseInt(String.format("%d", Integer
+                            .parseInt(ln[i + 1].substring(0, 2))));
+                        int day = Integer.parseInt(String.format("%d", Integer
+                            .parseInt(ln[i + 1].substring(3, 5))));
+                        int year = Integer.parseInt(String.format("%d", Integer
+                            .parseInt(ln[i + 1].substring(6))));
+                        LocalDate d = LocalDate.of(year, month, day);
+                        date = dateToIntDash(d.toString());
+
+                    }
+                    else {
+                        System.out.println("The date " + ln[i + 1]
+                            + " is not valid");
+                        return;
+                    }
+                }
+                catch (DateTimeException e) {
+                    System.out.println("The date " + ln[i + 1]
+                        + " is not valid");
+                    return;
+                }
+            }
+        }
+        String result = "";
+        String topD = "";
+        LocalDate topLD = null;
+        ArrayList<Integer> averages = null;
+        ArrayList<String> uniqueStates = null;
+        if (date == 0) {
+            topD = dateToStringDash(topDate(DS.getRoot()));
+            topLD = LocalDate.parse(topD);
+            ArrayList<Record> records = recordsInRange(SD.getRoot(), topD,
+                topNum);
+            averages = posAverages(records, topNum);
+            uniqueStates = uniqueStates(records);
+            avg = loadAvg(averages, uniqueStates, records, st);
+            result = TTraverse(avg.getRoot(), st);
+            String start = dateToString(dateToIntDash(topLD.minusDays(topNum
+                - 1).toString()));
+            System.out.println("Top " + averages.size()
+                + " states with the highest average daily positive cases from "
+                + start + " to " + dateToString(topDate(DS.getRoot())) + ":");
+        }
+        else {
+            topD = dateToStringDash(date);
+            topLD = LocalDate.parse(topD);
+            ArrayList<Record> records = recordsInRange(SD.getRoot(), topD,
+                topNum);
+            averages = posAverages(records, topNum);
+            uniqueStates = uniqueStates(records);
+            avg = loadAvg(averages, uniqueStates, records, st);
+            result = TTraverse(avg.getRoot(), st);
+            System.out.println("Top " + averages.size()
+                + " states with the highest average daily positive cases from "
+                + topLD.toString().replaceAll("-", "/") + " to " + dateToString(
+                    date) + ":");
+        }
+        System.out.println(result);
+
+    }
+
+
+    /**
+     * @param averages
+     * @param uniqueStates
+     * @param st
+     * @return
+     */
+    public static BSTree<KeyVector<?, ?, ?>, Record> loadAvg(
+        ArrayList<Integer> averages,
+        ArrayList<String> uniqueStates,
+        ArrayList<Record> r,
+        String[] st) {
+        BSTree<KeyVector<?, ?, ?>, Record> tree =
+            new BSTree<KeyVector<?, ?, ?>, Record>();
+        for (int i = 0; i < averages.size(); i++) {
+            Record rec = r.get(i);
+            int currAvg = averages.get(i);
+            String state = abConversion(uniqueStates.get(i), st);
+            KeyVector<Integer, String, Integer> kv = new KeyVector<>(currAvg,
+                state, null);
+            tree.insertString(kv, rec);
+        }
+        return tree;
+    }
+
+
+    /**
+     * @param records
+     * @return
+     */
+    private static ArrayList<String> uniqueStates(ArrayList<Record> r) {
+        ArrayList<String> states = new ArrayList<String>();
+
+        for (int i = 0; i < r.size() - 1; i++) {
+            if (!r.get(i).getState().equalsIgnoreCase(r.get(i + 1)
+                .getState())) {
+                states.add(r.get(i).getState());
+            }
+        }
+        states.add(r.get(r.size() - 1).getState());
+        return states;
+    }
+
+
+    /**
+     * @param records
+     * @return
+     */
+    public static ArrayList<Integer> posAverages(
+        ArrayList<Record> r,
+        int days) {
+        ArrayList<Integer> avg = new ArrayList<>();
+        int j = 0;
+        int currAvg;
+        for (int i = 0; i < r.size(); i++) {
+            Record curr = r.get(i);
+            String currState = curr.getState();
+            currAvg = 0;
+            j = i;
+            while (currState.equalsIgnoreCase(r.get(j).getState())) {
+                currAvg += r.get(j).getPositive();
+                if (j == r.size() - 1) {
+                    break;
+                }
+                j++;
+
+            }
+
+            if (j == r.size() - 1) {
+                if (r.get(j).getState().equalsIgnoreCase(r.get(j - 1)
+                    .getState())) {
+                    currAvg /= days;
+                    avg.add(currAvg);
+
+                }
+                else {
+                    currAvg /= days;
+                    avg.add(currAvg);
+
+                    currAvg = r.get(j).getPositive();
+                    currAvg /= days;
+                    avg.add(currAvg);
+                }
+                break;
+            }
+            currAvg /= days;
+            avg.add(currAvg);
+            i = j - 1;
+
+        }
+
+        return avg;
+    }
+
+
+    /**
+     * @param root
+     * @param topLD
+     * @param topNum
+     * @return
+     */
+    public static ArrayList<Record> recordsInRange(
+        BSTNode<KeyVector<?, ?, ?>, Record> n,
+        String topD,
+        int topNum) {
+        ArrayList<Record> r = new ArrayList<>();
+        int currDate = n.element().getDate();
+
+        if (n.left() != null) {
+            r.addAll(recordsInRange(n.left(), topD, topNum));
+        }
+        if (dateInRange(dateToStringDash(currDate), topD, topNum)) {
+            r.add(n.element());
+        }
+        if (n.right() != null) {
+            r.addAll(recordsInRange(n.right(), topD, topNum));
+
+        }
+        return r;
+    }
+
+
+    /**
+     * @param root
+     * @param topDate
+     * @param topNum
+     * @return
+     */
+    public static String TTraverse(
+        BSTNode<KeyVector<?, ?, ?>, Record> n,
+        String[] st) {
+
+        StringBuilder builder = new StringBuilder();
+        if (n.right() != null) {
+            builder.append(TTraverse(n.right(), st));
+        }
+        builder.append(n.key().getKey1() + " " + stateConversion(n.key()
+            .getKey2().toString(), st) + "\n");
+        if (n.left() != null) {
+            builder.append(TTraverse(n.left(), st));
+        }
+        return builder.toString();
+    }
+
+
     public static BSTree<KeyVector<?, ?, ?>, Record> loadTree(
         ArrayList<Record> c,
         int op,
@@ -268,7 +529,7 @@ public class Covid19TrackingManager2 {
                 tree.insert(kv, curr);
             }
         }
-        else {
+        else if (op == 3) {
             for (int i = 0; i < c.size(); i++) {
                 Record curr = c.get(i);
                 String state = abConversion(curr.getState(), st);
@@ -276,6 +537,17 @@ public class Covid19TrackingManager2 {
                 int date = curr.getDate();
                 KeyVector<String, Integer, String> kv = new KeyVector<>(grade,
                     date, state);
+                tree.insert(kv, curr);
+            }
+        }
+        else {
+            for (int i = 0; i < c.size(); i++) {
+                Record curr = c.get(i);
+                String state = abConversion(curr.getState(), st);
+                String grade = curr.getDataQualityGrade();
+                int date = curr.getDate();
+                KeyVector<String, String, Integer> kv = new KeyVector<>(grade,
+                    state, date);
                 tree.insert(kv, curr);
             }
         }
@@ -349,52 +621,19 @@ public class Covid19TrackingManager2 {
      *            array of state names and abbreviations
      * @return boolean indicating method return
      */
-    public static boolean search(
-        String[] line,
-        BSTree<KeyVector<?, ?, ?>, Record> tree,
-        String[] stateArray) {
-        if (line.length == 1) {
-            if (tree.size() == 0) {
-                System.out.println("No available data");
-            }
-            else {
-                int topDate = topDate(tree.getRoot());
-                int records = searchNone(topDate, tree.getRoot());
-                System.out.println(records
-                    + " records have been printed on date " + dateToString(
-                        topDate));
-            }
+// public static boolean search(
+// String[] line,
+// BSTree<KeyVector<?, ?, ?>, Record> tree,
+// String[] stateArray) {
+// if (line.length == 1) {
+// int topDate = topDate(tree.getRoot());
+// int records = searchNone(topDate, tree.getRoot());
+// System.out.println(records + " records have been printed on date "
+// + dateToString(topDate));
 // }
 // else {
-// String[] searchSplit = line.split(" ");
-// if (searchSplit.length != 2) {
-// String state = getSearchState(searchSplit);
-// try {
-// Integer.parseInt(searchSplit[searchSplit.length - 1]);
-//
-// if (Integer.parseInt(searchSplit[searchSplit.length
-// - 1]) <= 0) {
-// System.out.println(
-// "Invalid command. # of records has to be positive");
-// }
-//
-// else if (!validState(state, stateArray)) {
-// System.out.println("State of " + state
-// + " does not exist!");
-// }
-//
-// else if (!containsState(state, curr, stateArray)) {
-// System.out.println("There are no records from "
-// + state);
-// }
-// else {
-// findState(state, curr, stateArray, Integer.parseInt(
-// searchSplit[searchSplit.length - 1]));
-// }
-// }
-// catch (NumberFormatException e) {
-// System.out.println("Discard invalid command name");
-// }
+// if (line[1].equalsIgnoreCase("-C")) {
+// searchC(Integer.parseInt(line[2]));
 // }
 // else {
 // String date = line.split(" ")[1];
@@ -413,8 +652,19 @@ public class Covid19TrackingManager2 {
 //
 // }
 //
-        }
-        return true;
+// }
+// return true;
+// }
+
+    public static String searchC(
+        BSTree<KeyVector<?, ?, ?>, Record> tree,
+        int pos) {
+        int count = 0;
+        LocalDate d;
+
+// HashSet<String> s = getUniqueStates(tree);
+        return "";
+
     }
 
 
@@ -427,12 +677,247 @@ public class Covid19TrackingManager2 {
 
             if (n.element().getDate() == date) {
                 count++;
-                System.out.println(n.element().toString());
+                System.out.println(n.element().toStringTab());
             }
 
             count = count + searchNone(date, n.right());
         }
         return count;
+    }
+
+
+    public static void searchQSDN(
+        BSTree<KeyVector<?, ?, ?>, Record> SD,
+        BSTree<KeyVector<?, ?, ?>, Record> DS,
+        BSTree<KeyVector<?, ?, ?>, Record> GDS,
+        BSTree<KeyVector<?, ?, ?>, Record> GSD,
+        String[] ln,
+        String[] st) {
+        String grade = "";
+        String state = "";
+        int date = 0;
+        int numDays = 0;
+        LocalDate d = null;
+
+        for (int i = 1; i < ln.length; i++) {
+            if (ln[i].equals("-Q")) {
+                if (validGrade(ln[i + 1])) {
+                    grade = ln[i + 1];
+                }
+                else {
+                    System.out.println(ln[i + 1]
+                        + " is not a valid quality grade");
+                    return;
+                }
+
+            }
+            else if (ln[i].equals("-S")) {
+                state = getSearchState(ln, i);
+                if (validState(state, st)) {
+                    state = stateConversion(state, st);
+                }
+                else {
+                    System.out.println("The state " + ln[i + 1]
+                        + " does not exist");
+                    return;
+                }
+            }
+
+            else if (ln[i].equals("-D")) {
+                try {
+                    if (validDate(ln[i + 1])) {
+                        int month = Integer.parseInt(String.format("%d", Integer
+                            .parseInt(ln[i + 1].substring(0, 2))));
+                        int day = Integer.parseInt(String.format("%d", Integer
+                            .parseInt(ln[i + 1].substring(3, 5))));
+                        int year = Integer.parseInt(String.format("%d", Integer
+                            .parseInt(ln[i + 1].substring(6))));
+                        d = LocalDate.of(year, month, day);
+                        date = dateToInt(ln[i + 1]);
+
+                    }
+                    else {
+                        System.out.println("The date " + ln[i + 1]
+                            + " is not valid");
+                        return;
+                    }
+                }
+                catch (DateTimeException e) {
+                    System.out.println("The date " + ln[i + 1]
+                        + " is not valid");
+                    return;
+                }
+            }
+            else if (ln[i].equals("-N")) {
+                numDays = Integer.parseInt(ln[i + 1]);
+            }
+        }
+
+        int topDate = topDate(SD.getRoot());
+        System.out.println("date\tstate\tpositive\tnegative\thospitalized\t"
+            + "onVentilatorCurrently\tonVentilatorCumulative\t"
+            + "recovered\tdataQualityGrade\tdeath");
+        String result;
+        if (!grade.equals("")) {
+            if (!state.equals("")) {
+                result = QSDNTraverse(grade, state, date, numDays, topDate, GDS
+                    .getRoot());
+            }
+            else {
+                result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+                    .getRoot());
+            }
+        }
+        else if (!state.equals("")) {
+            result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+                .getRoot());
+
+        }
+        else {
+            result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+                .getRoot());
+
+        }
+        int lines;
+        if (result.isEmpty()) {
+            lines = 0;
+        }
+        else {
+            lines = result.split("\n").length;
+        }
+        System.out.print(result);
+        String ans = "";
+        ans = ans.concat(lines + " records have been printed ");
+        if (!grade.equals("")) {
+            ans = ans.concat(" with better or equal than quality grade "
+                + grade);
+        }
+        if (!state.equals("")) {
+            ans = ans.concat(" for state " + stateConversion(state, st));
+        }
+        if (date != 0) {
+            ans = ans.concat(" on date " + dateToString(date));
+        }
+        if (numDays != 0) {
+            if (date == 0) {
+                LocalDate first = LocalDate.parse(dateToStringDash(topDate(DS
+                    .getRoot()))).minusDays(numDays - 1);
+                String firstD = dateToString(dateToIntDash(first.toString()));
+                ans = ans.concat(" from " + firstD + " to " + dateToString(
+                    topDate(DS.getRoot())));
+            }
+            else {
+                LocalDate first = LocalDate.parse(dateToStringDash(dateToInt(d
+                    .toString()))).minusDays(numDays - 1);
+                String firstD = dateToString(dateToIntDash(first.toString()));
+                ans = ans.concat(" from " + firstD + " to " + dateToString(
+                    topDate(DS.getRoot())));
+            }
+
+        }
+        ans = ans.replaceAll("\\s+", " ").trim();
+        System.out.println(ans);
+
+    }
+
+
+    /**
+     * @param grade
+     * @param state
+     * @param date
+     * @param numDays
+     * @param root
+     * @return
+     */
+    public static String QSDNTraverse(
+        String grade,
+        String state,
+        int date,
+        int numDays,
+        int topD,
+        BSTNode<KeyVector<?, ?, ?>, Record> n) {
+
+        Record curr = n.element();
+        String grade1 = grade;
+        String state1 = state;
+        int date1 = date;
+        boolean range = true;
+        if (grade.equals("")) {
+            grade = "F";
+        }
+        if (state.equals("")) {
+            state = curr.getState();
+        }
+        if (date == 0) {
+            range = dateInRange(dateToStringDash(curr.getDate()),
+                dateToStringDash(topD), numDays);
+            date = curr.getDate();
+        }
+        StringBuilder builder = new StringBuilder();
+
+        if (n.left() != null) {
+            builder.append(QSDNTraverse(grade1, state1, date1, numDays, topD, n
+                .left()));
+        }
+        if (greaterGradeEqual(curr.getDataQualityGrade(), grade) && state
+            .equals(curr.getState()) && date == curr.getDate() && dateInRange(
+                dateToStringDash(curr.getDate()), dateToStringDash(date),
+                numDays) && range) {
+            builder.append(curr.toStringTab() + "\n");
+        }
+        if (n.right() != null) {
+            builder.append(QSDNTraverse(grade1, state1, date1, numDays, topD, n
+                .right()));
+        }
+        return builder.toString();
+    }
+
+
+    /**
+     * @param dateToStringDash
+     * @param dateToStringDash2
+     * @param numDays
+     * @return
+     */
+    public static boolean dateInRange(String date1, String date2, int numDays) {
+        // case for no -N flag (all days)
+        if (numDays == 0) {
+            return true;
+        }
+        LocalDate d1 = LocalDate.parse(date1);
+        LocalDate d2 = LocalDate.parse(date2);
+        int dayCount = (int)d1.datesUntil(d2).count();
+        if (numDays <= dayCount) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+// public static HashSet<String> getUniqueStates(
+// BSTree<KeyVector<?, ?, ?>, Record> tree) {
+// HashSet<String> s = new HashSet<>();
+// if (left != null) {
+// builder.append(left.toInOrderString());
+// }
+// builder.append(element);
+// if (right != null) {
+// builder.append(right.toInOrderString());
+// }
+// return builder.toString();
+// }
+
+
+    public static boolean validGrade(String grade) {
+        boolean valid = false;
+        String[] grades = { "A+", "A", "B+", "B", "C+", "C", "D+", "D", "F" };
+        for (String curr : grades) {
+            if (curr.equalsIgnoreCase(grade)) {
+                valid = true;
+            }
+        }
+        return valid;
     }
 
 
@@ -445,22 +930,20 @@ public class Covid19TrackingManager2 {
         }
 
         if (n.right() != null && n.left() != null) {
-            if (curr < Math.max(n.left().element().getDate(), n.right()
-                .element().getDate()))
-                curr = Math.max(n.left().element().getDate(), n.right()
-                    .element().getDate());
+            if (curr < Math.max(topDate(n.left()), topDate(n.right())))
+                curr = Math.max(topDate(n.left()), topDate(n.right()));
         }
 
         // Recursive case 1: current node has 1 child on the left
         else if (n.left() != null) {
-            if (curr < n.left().element().getDate())
-                curr = n.left().element().getDate();
+            if (curr < topDate(n.left()))
+                curr = topDate(n.left());
         }
 
         // Recursive Case 2: current node has 1 child on the right
         else {
-            if (curr < n.left().element().getDate())
-                curr = n.left().element().getDate();
+            if (curr < topDate(n.right()))
+                curr = topDate(n.right());
         }
 
         return curr;
@@ -645,10 +1128,15 @@ public class Covid19TrackingManager2 {
      * @return
      *         the state found
      */
-    public static String getSearchState(String[] s) {
+    public static String getSearchState(String[] s, int i) {
         String state = "";
-        for (int i = 1; i < s.length - 1; i++) {
-            state = state.concat(s[i] + " ");
+        for (int j = i + 1; j < s.length; j++) {
+            if (!(s[j].charAt(0) == '-')) {
+                state = state.concat(s[j] + " ");
+            }
+            else {
+                return state.trim();
+            }
         }
 
         return state.trim();
@@ -811,16 +1299,38 @@ public class Covid19TrackingManager2 {
      *         boolean value indicating if the first record's grade was greater
      */
 
-    public static boolean greaterGrade(Record one, Record two) {
-        String a = one.getDataQualityGrade();
-        String b = two.getDataQualityGrade();
+    public static boolean greaterGrade(String a, String b) {
 
         if (a.equalsIgnoreCase(b)) {
             return false;
         }
 
         else if (a.charAt(0) == b.charAt(0)) {
-            return a.contains("+") || (b.contains("-"));
+            return a.contains("+");
+        }
+        return a.charAt(0) < b.charAt(0);
+    }
+
+
+    /**
+     * Method used to determine which record has a greater grade
+     * 
+     * @param one
+     *            first record to check
+     * @param two
+     *            second record to check
+     * @return
+     *         boolean value indicating if the first record's grade was greater
+     */
+
+    public static boolean greaterGradeEqual(String a, String b) {
+
+        if (a.equalsIgnoreCase(b)) {
+            return true;
+        }
+
+        else if (a.charAt(0) == b.charAt(0)) {
+            return a.contains("+");
         }
         return a.charAt(0) < b.charAt(0);
     }
@@ -1008,6 +1518,22 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * Converts an integer date value to a string value with dashes
+     * 
+     * @param d
+     *            the date to be converted
+     * @return
+     *         the date as a string
+     */
+    public static String dateToStringDash(int d) {
+        String date = String.valueOf(d);
+        String formatted = date.substring(0, 4) + "-" + date.substring(4, 6)
+            + "-" + date.substring(6, 8);
+        return formatted;
+    }
+
+
+    /**
      * Converts a date value to an integer value
      * 
      * @param d
@@ -1018,6 +1544,21 @@ public class Covid19TrackingManager2 {
     public static int dateToInt(String d) {
         String[] split = d.trim().split("/");
         String formatted = split[2] + split[0] + split[1];
+        return Integer.parseInt(formatted);
+    }
+
+
+    /**
+     * Converts a date with dashes to an integer value
+     * 
+     * @param d
+     *            the date to be converted
+     * @return
+     *         the date as an integer
+     */
+    public static int dateToIntDash(String d) {
+        String[] split = d.trim().split("-");
+        String formatted = split[0] + split[1] + split[2];
         return Integer.parseInt(formatted);
     }
 
@@ -1056,6 +1597,9 @@ public class Covid19TrackingManager2 {
     public static String stateConversion(String state, String[] s) {
         for (int i = 0; i < s.length; i++) {
             if (state.equalsIgnoreCase(s[i].split(" - ")[0])) {
+                return s[i].split(" - ")[1];
+            }
+            else if (state.equalsIgnoreCase(s[i].split(" - ")[1])) {
                 return s[i].split(" - ")[1];
             }
         }
