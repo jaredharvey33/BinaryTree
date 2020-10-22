@@ -1,15 +1,15 @@
-//Virginia Tech Honor Code Pledge:
+// Virginia Tech Honor Code Pledge:
 //
-//As a Hokie, I will conduct myself with honor and integrity at all times.
-//I will not lie, cheat, or steal, nor will I accept the actions of those who
-//do.
-//-- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+// As a Hokie, I will conduct myself with honor and integrity at all times.
+// I will not lie, cheat, or steal, nor will I accept the actions of those who
+// do.
+// -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
 
 /**
-* @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
-* @version 2020.10.20
-*
-*/
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+ * @version 2020.10.20
+ *
+ */
 public class BSTreeTest extends student.TestCase {
 
     private KeyVector<String, String, String> k1;
@@ -74,6 +74,16 @@ public class BSTreeTest extends student.TestCase {
     public void testInsert() {
         assertEquals(t.size(), 1);
         t.insert(k1, "one");
+        assertEquals(t.size(), 2);
+    }
+
+
+    /**
+     * tests the insertString method
+     */
+    public void testInsertString() {
+        assertEquals(t.size(), 1);
+        t.insertString(k1, "one");
         assertEquals(t.size(), 2);
     }
 
