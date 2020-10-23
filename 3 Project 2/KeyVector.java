@@ -15,7 +15,8 @@
  * @param <K3>
  *            The third key
  */
-public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 extends Comparable<K3>>
+public class KeyVector<K1 extends Comparable<K1>,
+K2 extends Comparable<K2>, K3 extends Comparable<K3>>
     implements Comparable<KeyVector<?, ?, ?>> {
 
     private K1 key1;

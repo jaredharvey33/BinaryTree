@@ -9,6 +9,10 @@
  * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
  * @version 2020.10.20
  *
+ * @param <K>
+ *            node key value
+ * @param <E>
+ *            node element value
  */
 public class BSTNode<K, E> {
     private K key;
@@ -20,7 +24,8 @@ public class BSTNode<K, E> {
      * Empty Constructor
      */
     public BSTNode() {
-        left = right = null;
+        left = null;
+        right = null;
     }
 
 
@@ -33,7 +38,8 @@ public class BSTNode<K, E> {
      *            Node element value
      */
     public BSTNode(K k, E val) {
-        left = right = null;
+        left = null;
+        right = null;
         key = k;
         element = val;
     }
@@ -74,10 +80,9 @@ public class BSTNode<K, E> {
      * 
      * @param k
      *            Key value
-     * @return the updated key value
      */
-    public K setKey(K k) {
-        return key = k;
+    public void setKey(K k) {
+        this.key = k;
     }
 
 
@@ -96,11 +101,9 @@ public class BSTNode<K, E> {
      * 
      * @param v
      *            Element to set
-     * @return
-     *         Updated element value
      */
-    public E setElement(E v) {
-        return element = v;
+    public void setElement(E v) {
+        this.element = v;
     }
 
 
@@ -119,11 +122,9 @@ public class BSTNode<K, E> {
      * 
      * @param p
      *            Node to set
-     * @return the new left node
-     * 
      */
-    public BSTNode<K, E> setLeft(BSTNode<K, E> p) {
-        return left = p;
+    public void setLeft(BSTNode<K, E> p) {
+        this.left = p;
     }
 
 
@@ -142,10 +143,9 @@ public class BSTNode<K, E> {
      * 
      * @param p
      *            Node to set
-     * @return the new Right node
      */
-    public BSTNode<K, E> setRight(BSTNode<K, E> p) {
-        return right = p;
+    public void setRight(BSTNode<K, E> p) {
+        this.right = p;
     }
 
 
@@ -199,10 +199,12 @@ public class BSTNode<K, E> {
      * @return level of the node
      */
     public int getLevel(BSTNode<K, E> rt, E e, int l) {
-        if (rt == null)
+        if (rt == null) {
             return 0;
-        if (rt.element().equals(e))
+        }
+        if (rt.element().equals(e)) {
             return l;
+        }
 
         int result = getLevel(rt.left, e, l + 1);
         if (result != 0) {
