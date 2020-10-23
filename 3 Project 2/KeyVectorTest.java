@@ -118,6 +118,8 @@ public class KeyVectorTest extends student.TestCase {
 
         assertEquals(k1.compareToIntDesc(k7), 1);
         assertEquals(k1.compareToIntDesc(k6), -1);
+        
+        
     }
 
 }
