@@ -1,13 +1,12 @@
-
 // Virginia Tech Honor Code Pledge:
 //
 // As a Hokie, I will conduct myself with honor and integrity at all times.
 // I will not lie, cheat, or steal, nor will I accept the actions of those who
 // do.
-// -- Ren Robinson (rarobin98)
+// -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
 
 /**
- * @author Ren Robinson (rarobin98)
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
  * @version 2020.10.20
  *
  */
@@ -85,19 +84,39 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
 
 
     /**
-     * @return Record with key k, null if none. @param k The key value to find.
+     * Finds the record
+     * 
+     * @param k
+     *            The key value to find.
+     * 
+     * @return Record with key k, null if none.
+     * 
      */
     public E find(K k) {
         return findhelp(root, k);
     }
 
 
-    /** @return Number of records in dictionary. */
+    /**
+     * Gets number of records
+     * 
+     * @return Number of records in dictionary.
+     */
     public int size() {
         return nodecount;
     }
 
 
+    /**
+     * Helper method to find records
+     * 
+     * @param rt
+     *            root node
+     * @param k
+     *            key to find
+     * @return
+     *         the record if it was found, null if it was not found
+     */
     private E findhelp(BSTNode<K, E> rt, K k) {
         if (rt == null)
             return null;
@@ -110,6 +129,17 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     }
 
 
+    /**
+     * Helper method for insert method
+     * 
+     * @param rt
+     *            root of tree
+     * @param k
+     *            key to insert
+     * @param e
+     *            element to insert
+     * @return returns the inserted node
+     */
     private BSTNode<K, E> inserthelp(BSTNode<K, E> rt, K k, E e) {
         if (rt == null)
             return new BSTNode<K, E>(k, e);
@@ -121,6 +151,14 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     }
 
 
+    /**
+     * gets the minimum node
+     * 
+     * @param rt
+     *            root node
+     * @return
+     *         minimum node
+     */
     private BSTNode<K, E> getmin(BSTNode<K, E> rt) {
         if (rt.left() == null)
             return rt;
@@ -129,6 +167,17 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     }
 
 
+    /**
+     * Helper method for insert in descending order
+     * 
+     * @param rt
+     *            root node
+     * @param k
+     *            key of node to insert
+     * @param e
+     *            element of node to insert
+     * @return the inserted node
+     */
     private BSTNode<K, E> insertIntDescHelp(BSTNode<K, E> rt, K k, E e) {
         if (rt == null)
             return new BSTNode<K, E>(k, e);
@@ -140,6 +189,13 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     }
 
 
+    /**
+     * Deleted the minimum node value
+     * 
+     * @param rt
+     *            root node
+     * @return the root node
+     */
     private BSTNode<K, E> deletemin(BSTNode<K, E> rt) {
         if (rt.left() == null)
             return rt.right();

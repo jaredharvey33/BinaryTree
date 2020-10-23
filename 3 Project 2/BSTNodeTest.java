@@ -35,6 +35,7 @@ public class BSTNodeTest extends student.TestCase {
         n5 = new BSTNode<>("test4", 70);
         n5.setLeft(n3);
         n5.setRight(n2);
+        n2.setRight(n1);
 
         n6 = new BSTNode<>("test4", 80);
 
@@ -139,7 +140,7 @@ public class BSTNodeTest extends student.TestCase {
         n4.setLeft(n3);
         assertEquals(n4.getHeight(), 1);
         n3.setLeft(n2);
-        assertEquals(n4.getHeight(), 2);
+        assertEquals(n4.getHeight(), 3);
         n2.setLeft(n1);
         assertEquals(n4.getHeight(), 3);
 
@@ -148,6 +149,16 @@ public class BSTNodeTest extends student.TestCase {
 
         n6.setRight(n4);
         assertEquals(n6.getHeight(), 4);
+
+    }
+    /**
+     * tests the getLevel method
+     */
+    public void testGetLevel() {
+        assertEquals(n1.getLevel(n1, n1.element(), 0), 0);
+        
+        assertEquals(n3.getLevel(n5, n3.element(), 0), 1);
+        assertEquals(n1.getLevel(n5, n1.element(), 0), 2);
 
     }
 

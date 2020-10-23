@@ -16,11 +16,22 @@ public class BSTNode<K, E> {
     private BSTNode<K, E> left;
     private BSTNode<K, E> right;
 
+    /**
+     * Empty Constructor
+     */
     public BSTNode() {
         left = right = null;
     }
 
 
+    /**
+     * Constructor for 1 BSTNode
+     * 
+     * @param k
+     *            Node key value
+     * @param val
+     *            Node element value
+     */
     public BSTNode(K k, E val) {
         left = right = null;
         key = k;
@@ -28,6 +39,18 @@ public class BSTNode<K, E> {
     }
 
 
+    /**
+     * Constructor for 2 BSTNode
+     * 
+     * @param k
+     *            Key value for root
+     * @param val
+     *            Element value for root
+     * @param l
+     *            Left node
+     * @param r
+     *            Right node
+     */
     public BSTNode(K k, E val, BSTNode<K, E> l, BSTNode<K, E> r) {
         left = l;
         right = r;
@@ -36,46 +59,101 @@ public class BSTNode<K, E> {
     }
 
 
+    /**
+     * Gets the key of a node
+     * 
+     * @return Key value for node
+     */
     public K key() {
         return key;
     }
 
 
+    /**
+     * Sets the key of a node
+     * 
+     * @param k
+     *            Key value
+     * @return the updated key value
+     */
     public K setKey(K k) {
         return key = k;
     }
 
 
+    /**
+     * Gets the element of a node
+     * 
+     * @return
+     */
     public E element() {
         return element;
     }
 
 
+    /**
+     * Sets the element of a node
+     * 
+     * @param v
+     *            Element to set
+     * @return
+     *         Updated element value
+     */
     public E setElement(E v) {
         return element = v;
     }
 
 
+    /**
+     * Gets the left node
+     * 
+     * @return the left node
+     */
     public BSTNode<K, E> left() {
         return left;
     }
 
 
+    /**
+     * Sets the left node
+     * 
+     * @param p
+     *            Node to set
+     * @return the new left node
+     * 
+     */
     public BSTNode<K, E> setLeft(BSTNode<K, E> p) {
         return left = p;
     }
 
 
+    /**
+     * Gets the right node
+     * 
+     * @return the new right node
+     */
     public BSTNode<K, E> right() {
         return right;
     }
 
 
+    /**
+     * Sets the right node
+     * 
+     * @param p
+     *            Node to set
+     * @return the new Right node
+     */
     public BSTNode<K, E> setRight(BSTNode<K, E> p) {
         return right = p;
     }
 
 
+    /**
+     * checks if a node is a leaf
+     * 
+     * @return boolean indicating if it is a leaf or not
+     */
     public boolean isLeaf() {
         return (left == null) && (right == null);
     }
@@ -109,6 +187,17 @@ public class BSTNode<K, E> {
     }
 
 
+    /**
+     * Gets the level of a certain node on the tree
+     * 
+     * @param rt
+     *            root of the tree
+     * @param e
+     *            element of the node
+     * @param l
+     *            level of the node
+     * @return level of the node
+     */
     public int getLevel(BSTNode<K, E> rt, E e, int l) {
         if (rt == null)
             return 0;

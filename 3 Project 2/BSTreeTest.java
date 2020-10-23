@@ -79,6 +79,16 @@ public class BSTreeTest extends student.TestCase {
 
 
     /**
+     * tests the insertIntDesc method
+     */
+    public void testInsertIntDesc() {
+        assertEquals(t.size(), 1);
+        t.insertIntDesc(k1, "one");
+        assertEquals(t.size(), 2);
+    }
+
+
+    /**
      * tests the remove method
      */
     public void testRemove() {

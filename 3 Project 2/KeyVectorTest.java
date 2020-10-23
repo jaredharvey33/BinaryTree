@@ -48,7 +48,7 @@ public class KeyVectorTest extends student.TestCase {
         k5 = new KeyVector<Integer, Integer, Integer>(1, 0, 1);
 
         // null key 3
-        kn = new KeyVector<Integer,Integer,Integer>(1, 1, null);
+        kn = new KeyVector<Integer, Integer, Integer>(1, 1, null);
         kn2 = new KeyVector<Integer, Integer, Integer>(1, 1, null);
 
         k6 = new KeyVector<Integer, Integer, Integer>(1, 1, 2);
@@ -102,6 +102,25 @@ public class KeyVectorTest extends student.TestCase {
 
         assertEquals(k1.compareTo(k7), -1);
         assertEquals(k1.compareTo(k6), 1);
+    }
+
+
+    /**
+     * tests the compareToIntDesc method
+     */
+    public void testCompareToIntDesc() {
+        assertEquals(k1.compareToIntDesc(k1), 0);
+
+        assertEquals(k1.compareToIntDesc(k3), 1);
+        assertEquals(k1.compareToIntDesc(k2), -1);
+
+        assertEquals(k1.compareToIntDesc(k5), 1);
+        assertEquals(k1.compareToIntDesc(k4), -1);
+
+        assertEquals(kn.compareToIntDesc(kn2), 0);
+
+        assertEquals(k1.compareToIntDesc(k7), 1);
+        assertEquals(k1.compareToIntDesc(k6), -1);
     }
 
 }

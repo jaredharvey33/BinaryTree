@@ -3,11 +3,11 @@
 // As a Hokie, I will conduct myself with honor and integrity at all times.
 // I will not lie, cheat, or steal, nor will I accept the actions of those who
 // do.
-// -- Ren Robinson (rarobin98)
+// -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
 
 /**
- * @author Ren Robinson (rarobin98)
- * @version 2020.10.12
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+ * @version 2020.10.20
  *
  */
 public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 extends Comparable<K3>>
@@ -17,6 +17,9 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
     private K2 key2;
     private K3 key3;
 
+    /**
+     * Empty constructor
+     */
     public KeyVector() {
         key1 = null;
         key2 = null;
@@ -24,6 +27,14 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
     }
 
 
+    /**
+     * Constructor with 2 key values
+     * 
+     * @param k1
+     *            first key
+     * @param k2
+     *            second key
+     */
     public KeyVector(K1 k1, K2 k2) {
         key1 = k1;
         key2 = k2;
@@ -31,6 +42,16 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
     }
 
 
+    /**
+     * Constructor with 3 key values
+     * 
+     * @param k1
+     *            First key
+     * @param k2
+     *            Second key
+     * @param k3
+     *            Third key
+     */
     public KeyVector(K1 k1, K2 k2, K3 k3) {
         key1 = k1;
         key2 = k2;
@@ -39,6 +60,8 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
+     * Gets the key
+     * 
      * @return the key1
      */
     public K1 getKey1() {
@@ -47,6 +70,8 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
+     * Sets the key
+     * 
      * @param key1
      *            the key1 to set
      */
@@ -56,6 +81,8 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
+     * Gets key 2
+     * 
      * @return the key2
      */
     public K2 getKey2() {
@@ -64,6 +91,8 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
+     * Sets key 2
+     * 
      * @param key2
      *            the key2 to set
      */
@@ -73,6 +102,8 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
+     * Gets key 3
+     * 
      * @return the key3
      */
     public K3 getKey3() {
@@ -81,6 +112,8 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
+     * Sets key 3
+     * 
      * @param key3
      *            the key3 to set
      */
@@ -90,8 +123,13 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
-     * @param o
+     * Compares Keys by integer values in descending order
+     * 
+     * @param kv
+     *            Keyvector to compare
      * @return
+     *         Value indicating whether the current KeyVector is greater,equal,
+     *         or less than the KeyVector passed in
      */
     @SuppressWarnings("unchecked")
     public int compareToIntDesc(KeyVector<?, ?, ?> kv) {
@@ -161,8 +199,7 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
 
 
     /**
-     * @param o
-     * @return
+     * CompareTo method for KeyVector
      */
     @SuppressWarnings("unchecked")
     public int compareTo(KeyVector<?, ?, ?> kv) {
