@@ -151,12 +151,14 @@ public class BSTNodeTest extends student.TestCase {
         assertEquals(n6.getHeight(), 4);
 
     }
+
+
     /**
      * tests the getLevel method
      */
     public void testGetLevel() {
         assertEquals(n1.getLevel(n1, n1.element(), 0), 0);
-        
+
         assertEquals(n3.getLevel(n5, n3.element(), 0), 1);
         assertEquals(n1.getLevel(n5, n1.element(), 0), 2);
 

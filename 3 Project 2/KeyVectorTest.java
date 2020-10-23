@@ -12,13 +12,10 @@
  */
 public class KeyVectorTest extends student.TestCase {
 
-    private KeyVector<String, String, String> nu;
-    private KeyVector<String, String, String> kv2;
     private KeyVector<String, String, String> kv3;
 
     // compareTo
     private KeyVector<Integer, Integer, Integer> k1;
-    private KeyVector<Integer, Integer, Integer> k11;
     private KeyVector<Integer, Integer, Integer> k2;
     private KeyVector<Integer, Integer, Integer> k3;
     private KeyVector<Integer, Integer, Integer> k4;
@@ -33,13 +30,13 @@ public class KeyVectorTest extends student.TestCase {
      */
 
     public void setUp() {
-        nu = new KeyVector<>();
-        kv2 = new KeyVector<String, String, String>("one", "two", null);
+        new KeyVector<>();
+        new KeyVector<String, String, String>("one", "two", null);
         kv3 = new KeyVector<String, String, String>("one", "two", "three");
 
         // compareTo
         k1 = new KeyVector<Integer, Integer, Integer>(1, 1, 1);
-        k11 = new KeyVector<Integer, Integer, Integer>(1, 1, 1);
+        new KeyVector<Integer, Integer, Integer>(1, 1, 1);
 
         k2 = new KeyVector<Integer, Integer, Integer>(2, 1, 1);
         k3 = new KeyVector<Integer, Integer, Integer>(0, 1, 1);

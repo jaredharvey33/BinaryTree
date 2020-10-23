@@ -16,6 +16,8 @@ import java.util.Scanner;
 public class Covid19TrackingManager2 {
 
     /**
+     * runner method
+     * 
      * @param args
      */
     public static void main(String[] args) {
@@ -54,8 +56,8 @@ public class Covid19TrackingManager2 {
             + "Wisconsin - WI\r\n" + "\r\n" + "Wyoming - WY";
 
         String[] stateArray = states.split("\r\n\r\n");
-        // String fileName = args[0];
-        String fileName = "input1.txt";
+// String fileName = args[0];
+        String fileName = "input2.txt";
 
         Scanner scan = null;
         ArrayList<Record> curr = new ArrayList<Record>();
@@ -123,7 +125,7 @@ public class Covid19TrackingManager2 {
                         .equalsIgnoreCase("-S") || splitLine[1]
                             .equalsIgnoreCase("-D") || splitLine[1]
                                 .equalsIgnoreCase("-N")) {
-                        searchQSDN(treeSD, treeDS, treeGDS, treeGSD, splitLine,
+                        searchQSDN(treeSD, treeDS, treeGSD, splitLine,
                             stateArray);
                     }
                     else if (splitLine[1].equalsIgnoreCase("-T")) {
@@ -143,11 +145,17 @@ public class Covid19TrackingManager2 {
 
             }
             else if (command.trim().equalsIgnoreCase("remove")) {
-                ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> rm = remove(
-                    splitLine[1], treeGSD, treeSD, treeDS, stateArray);
-                treeGSD = rm.get(0);
-                treeSD = rm.get(1);
-                treeDS = rm.get(2);
+                if (treeSD.size() == 0) {
+                    System.out.println(
+                        "0 records with quality grade lower or equal to C have been removed");
+                }
+                else {
+                    ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> rm = remove(
+                        splitLine[1], treeGSD, treeSD, treeDS, stateArray);
+                    treeGSD = rm.get(0);
+                    treeSD = rm.get(1);
+                    treeDS = rm.get(2);
+                }
 
             }
 
@@ -157,13 +165,19 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * removes grades at or below the specified grade from the data structures
      * 
      * @param grade
+     *            grade to check for
      * @param treeGSD
+     *            grade key tree
      * @param treeSD
+     *            state key tree
      * @param treeDS
+     *            date key tree
      * @param stateArray
-     * @return
+     *            array of state names/abbreviations
+     * @return the modified trees
      */
     public static ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> remove(
         String grade,
@@ -198,10 +212,13 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * gets a list of records with grades at or below the specified grade
      * 
      * @param grade
+     *            grade to check for
      * @param n
-     * @return
+     *            root node of tree
+     * @return list of records
      */
     public static ArrayList<Record> removeGrade(
         String grade,
@@ -326,8 +343,16 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param treeSD
-     * @param splitLine
+     * search method for -T flag
+     * 
+     * @param SD
+     *            state key tree
+     * @param DS
+     *            date key tree
+     * @param ln
+     *            command line
+     * @param st
+     *            array of state names/abbreviations
      */
     public static void searchT(
         BSTree<KeyVector<?, ?, ?>, Record> SD,
@@ -378,10 +403,10 @@ public class Covid19TrackingManager2 {
             topLD = LocalDate.parse(topD);
             ArrayList<Record> records = recordsInRange(SD.getRoot(), topD,
                 topNum);
-            averages = posAverages(records, topNum);
+            averages = posAverages(records, topNum, st);
             uniqueStates = uniqueStates(records);
             avg = loadAvg(averages, uniqueStates, records, st);
-            result = TTraverse(avg.getRoot(), st, 0);
+            result = TTraverse(avg.getRoot(), st);
             count = Math.min(averages.size(), 10);
             String start = dateToString(dateToIntDash(topLD.minusDays(topNum
                 - 1).toString()));
@@ -394,10 +419,10 @@ public class Covid19TrackingManager2 {
             topLD = LocalDate.parse(topD);
             ArrayList<Record> records = recordsInRange(SD.getRoot(), topD,
                 topNum);
-            averages = posAverages(records, topNum);
+            averages = posAverages(records, topNum, st);
             uniqueStates = uniqueStates(records);
             avg = loadAvg(averages, uniqueStates, records, st);
-            result = TTraverse(avg.getRoot(), st, 0);
+            result = TTraverse(avg.getRoot(), st);
             count = Math.min(averages.size(), 10);
             String start = dateToString(dateToIntDash(topLD.minusDays(topNum
                 - 1).toString()));
@@ -414,10 +439,17 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * loads a tree using averages as the key
+     * 
      * @param averages
+     *            list of averages
      * @param uniqueStates
+     *            list of states
+     * @param r
+     *            list of records
      * @param st
-     * @return
+     *            array of state names/abbreviations
+     * @return loaded tree
      */
     public static BSTree<KeyVector<?, ?, ?>, Record> loadAvg(
         ArrayList<Integer> averages,
@@ -429,7 +461,8 @@ public class Covid19TrackingManager2 {
         for (int i = 0; i < averages.size(); i++) {
             Record rec = r.get(i);
             int currAvg = averages.get(i);
-            String state = abConversion(uniqueStates.get(i), st);
+            String state = abConversion(uniqueStates.get(i), st).toLowerCase()
+                .replaceAll("\\s+", "");
             KeyVector<Integer, String, Integer> kv = new KeyVector<>(currAvg,
                 state, null);
             tree.insertIntDesc(kv, rec);
@@ -439,12 +472,14 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param records
-     * @return
+     * gets the unique states from a list of records
+     * 
+     * @param r
+     *            list of records
+     * @return list of states
      */
     public static ArrayList<String> uniqueStates(ArrayList<Record> r) {
         ArrayList<String> states = new ArrayList<String>();
-
         for (int i = 0; i < r.size() - 1; i++) {
             if (!r.get(i).getState().equalsIgnoreCase(r.get(i + 1)
                 .getState())) {
@@ -458,12 +493,18 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param records
-     * @return
+     * gets the list of average positive cases over a certain number of days
+     * 
+     * @param r
+     *            list of records
+     * @param days
+     *            number of days
+     * @return list of averages
      */
     public static ArrayList<Integer> posAverages(
         ArrayList<Record> r,
-        int days) {
+        int days,
+        String[] st) {
         ArrayList<Integer> avg = new ArrayList<>();
         int j = 0;
         int currAvg;
@@ -482,8 +523,8 @@ public class Covid19TrackingManager2 {
             }
 
             if (j == r.size() - 1) {
-                if (r.get(j).getState().equalsIgnoreCase(r.get(j - 1)
-                    .getState())) {
+                if (abConversion(r.get(j).getState(), st).equalsIgnoreCase(
+                    abConversion(r.get(j - 1).getState(), st))) {
                     currAvg /= days;
                     avg.add(currAvg);
 
@@ -509,10 +550,15 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param root
-     * @param topLD
+     * gets list of records with dates in a range
+     * 
+     * @param n
+     *            root node of tree
+     * @param topD
+     *            string of the top date
      * @param topNum
-     * @return
+     *            how many days back to go
+     * @return list of records in range
      */
     public static ArrayList<Record> recordsInRange(
         BSTNode<KeyVector<?, ?, ?>, Record> n,
@@ -536,34 +582,46 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param root
-     * @param topDate
-     * @param topNum
+     * traverse method for the -T flag
+     * 
+     * @param n
+     *            root node of tree
+     * @param st
+     *            array of state names/abbreviations
+     * @param curr
      * @return
      */
     public static String TTraverse(
         BSTNode<KeyVector<?, ?, ?>, Record> n,
-        String[] st,
-        int curr) {
+        String[] st) {
         StringBuilder builder = new StringBuilder();
         if (n.left() != null) {
-            builder.append(TTraverse(n.left(), st, curr));
+            builder.append(TTraverse(n.left(), st));
         }
         builder.append(stateConversion(n.key().getKey2().toString(), st) + " "
             + n.key().getKey1() + "\n");
 
         if (n.right() != null) {
-            builder.append(TTraverse(n.right(), st, curr));
+            builder.append(TTraverse(n.right(), st));
         }
         return builder.toString();
     }
 
 
+    /**
+     * 
+     * @param c
+     *            creates a tree based on the option
+     * @param op
+     *            the option
+     * @param st
+     *            array of state names/abbreviations
+     * @return loaded tree
+     */
     public static BSTree<KeyVector<?, ?, ?>, Record> loadTree(
         ArrayList<Record> c,
         int op,
         String[] st) {
-
         BSTree<KeyVector<?, ?, ?>, Record> tree = new BSTree<>();
         if (op == 1) {
             for (int i = 0; i < c.size(); i++) {
@@ -611,6 +669,14 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * method for the dumpbst command
+     * 
+     * @param tree
+     *            tree to dump
+     * @param op
+     *            operation to use
+     */
     public static void dumpBST(
         BSTree<KeyVector<?, ?, ?>, Record> tree,
         int op) {
@@ -624,6 +690,16 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * helper method for dumpbst
+     * 
+     * @param tree
+     *            tree to dump
+     * @param n
+     *            root node
+     * @param op
+     *            operation to use
+     */
     public static void dumpBSTHelp(
         BSTree<KeyVector<?, ?, ?>, Record> tree,
         BSTNode<KeyVector<?, ?, ?>, Record> n,
@@ -665,7 +741,6 @@ public class Covid19TrackingManager2 {
             dumpBSTHelp(tree, n.right(), op);
         }
     }
-
 
     /**
      * 
@@ -712,6 +787,17 @@ public class Covid19TrackingManager2 {
 // return true;
 // }
 
+
+    /**
+     * method for the -C flag
+     * 
+     * @param SD
+     *            state key tree
+     * @param pos
+     *            minimum number of positive cases
+     * @param st
+     *            array of state names/abbreviations
+     */
     public static void searchC(
         BSTree<KeyVector<?, ?, ?>, Record> SD,
         int pos,
@@ -736,8 +822,15 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param root
-     * @return
+     * traverse method for -C flag
+     * 
+     * @param n
+     *            root node
+     * @param st
+     *            array of state names/abbreviations
+     * @param element
+     *            previous element
+     * @return string output for -C flag
      */
     public static String CTraverse(
         BSTNode<KeyVector<?, ?, ?>, String> n,
@@ -765,9 +858,15 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * creates a tree for the -C flag
+     * 
      * @param pos
-     * @param records
-     * @return
+     *            minimum positive cases
+     * @param r
+     *            list of records
+     * @param st
+     *            array of state names/abbreviations
+     * @return loaded tree
      */
     public static BSTree<KeyVector<?, ?, ?>, String> treeC(
         int pos,
@@ -806,7 +905,12 @@ public class Covid19TrackingManager2 {
 
             }
             if (j == r.size() - 1) {
-                if (consec >= 7) {
+                if (consec >= 7 && currState.equals(r.get(j - 1).getState())) {
+                    starts.add(dateToString(curr.getDate()));
+                    ends.add(dateToString(r.get(j).getDate()));
+                    states.add(currState);
+                }
+                else if (consec >= 7) {
                     starts.add(dateToString(curr.getDate()));
                     ends.add(dateToString(r.get(j - 1).getDate()));
                     states.add(currState);
@@ -829,11 +933,17 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * loads a tree for the -C flag
+     * 
      * @param states
+     *            list of states
      * @param starts
+     *            list of start dates
      * @param ends
+     *            list of end dates
      * @param st
-     * @return
+     *            array of state names/abbreviations
+     * @return the loaded tree
      */
     public static BSTree<KeyVector<?, ?, ?>, String> loadC(
         ArrayList<String> states,
@@ -855,8 +965,11 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param sD
-     * @return
+     * converts a tree to a list
+     * 
+     * @param n
+     *            the tree root
+     * @return a list
      */
     public static ArrayList<Record> treeToList(
         BSTNode<KeyVector<?, ?, ?>, Record> n) {
@@ -873,6 +986,15 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * search with no flags
+     * 
+     * @param date
+     *            the top date
+     * @param n
+     *            the root of the tree
+     * @return the number of records found
+     */
     public static int searchNone(
         int date,
         BSTNode<KeyVector<?, ?, ?>, Record> n) {
@@ -891,10 +1013,23 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * method for the QDSN search flags
+     * 
+     * @param SD
+     *            state key tree
+     * @param DS
+     *            date key tree
+     * @param GSD
+     *            date key tree
+     * @param ln
+     *            search command
+     * @param st
+     *            array of state names/abbreviations
+     */
     public static void searchQSDN(
         BSTree<KeyVector<?, ?, ?>, Record> SD,
         BSTree<KeyVector<?, ?, ?>, Record> DS,
-        BSTree<KeyVector<?, ?, ?>, Record> GDS,
         BSTree<KeyVector<?, ?, ?>, Record> GSD,
         String[] ln,
         String[] st) {
@@ -979,7 +1114,7 @@ public class Covid19TrackingManager2 {
 
         }
         else {
-            result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+            result = QSDNTraverse(grade, state, date, numDays, topDate, DS
                 .getRoot());
 
         }
@@ -1027,12 +1162,21 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * traverse method for the QSDN flags
+     * 
      * @param grade
+     *            grade to search for
      * @param state
+     *            state to search for
      * @param date
+     *            date to search for
      * @param numDays
-     * @param root
-     * @return
+     *            days range
+     * @param topD
+     *            top date
+     * @param n
+     *            tree root
+     * @return string output for command
      */
     public static String QSDNTraverse(
         String grade,
@@ -1079,10 +1223,15 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * @param dateToStringDash
-     * @param dateToStringDash2
+     * checks if date1 is in range of date2
+     * 
+     * @param date1
+     *            first date
+     * @param date2
+     *            second date
      * @param numDays
-     * @return
+     *            day range
+     * @return boolean indicating if in range
      */
     public static boolean dateInRange(String date1, String date2, int numDays) {
         // case for no -N flag (all days)
@@ -1097,20 +1246,14 @@ public class Covid19TrackingManager2 {
         return false;
     }
 
-// public static HashSet<String> getUniqueStates(
-// BSTree<KeyVector<?, ?, ?>, Record> tree) {
-// HashSet<String> s = new HashSet<>();
-// if (left != null) {
-// builder.append(left.toInOrderString());
-// }
-// builder.append(element);
-// if (right != null) {
-// builder.append(right.toInOrderString());
-// }
-// return builder.toString();
-// }
 
-
+    /**
+     * checks if a string is a valid grade
+     * 
+     * @param grade
+     *            grade to check
+     * @return boolean indicating if valid
+     */
     public static boolean validGrade(String grade) {
         boolean valid = false;
         String[] grades = { "A+", "A", "B+", "B", "C+", "C", "D+", "D", "F" };
@@ -1123,6 +1266,13 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * finds top date
+     * 
+     * @param n
+     *            tree root
+     * @return top date
+     */
     public static int topDate(BSTNode<KeyVector<?, ?, ?>, Record> n) {
         int curr = n.element().getDate();
 
@@ -1776,6 +1926,9 @@ public class Covid19TrackingManager2 {
             if (ab.equalsIgnoreCase(s[i].split(" - ")[1])) {
                 return s[i].split(" - ")[0];
             }
+            else if (ab.equalsIgnoreCase(s[i].split(" - ")[0])) {
+                return s[i].split(" - ")[0];
+            }
         }
 
         return null;
@@ -1793,11 +1946,14 @@ public class Covid19TrackingManager2 {
      *         the state abbreviation
      */
     public static String stateConversion(String state, String[] s) {
+        state = state.toLowerCase().replaceAll("\\s+", "");
         for (int i = 0; i < s.length; i++) {
-            if (state.equalsIgnoreCase(s[i].split(" - ")[0])) {
+            if (state.equalsIgnoreCase(s[i].split(" - ")[0].toLowerCase()
+                .replaceAll("\\s+", ""))) {
                 return s[i].split(" - ")[1];
             }
-            else if (state.equalsIgnoreCase(s[i].split(" - ")[1])) {
+            else if (state.equalsIgnoreCase(s[i].split(" - ")[1].toLowerCase()
+                .replaceAll("\\s+", ""))) {
                 return s[i].split(" - ")[1];
             }
         }
