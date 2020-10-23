@@ -6,30 +6,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
-// On my honor:
-//
-// - I have not used source code obtained from another student,
-// or any other unauthorized source, either modified or
-// unmodified.
-//
-// - All source code and documentation used in my program is
-// either my original work, or was derived by me from the
-// source code published in the textbook for this course.
-//
-// - I have not discussed coding details about this project with
-// anyone other than my partner (in the case of a joint
-// submission), instructor, ACM/UPE tutors or the TAs assigned
-// to this course. I understand that I may discuss the concepts
-// of this program with other students, and that another student
-// may help me debug my program so long as neither of us writes
-// anything during the discussion or modifies any computer file
-// during the discussion. I have violated neither the spirit nor
-// letter of this restriction
-// -- Ren Robinson (rarobin98)
-import java.util.zip.CRC32;
 
 /**
  * @author Ren Robinson (rarobin98)
@@ -139,7 +116,8 @@ public class Covid19TrackingManager2 {
                 }
                 else {
                     if (splitLine[1].equalsIgnoreCase("-C")) {
-                        searchC(treeSD, Integer.parseInt(splitLine[2]));
+                        searchC(treeSD, Integer.parseInt(splitLine[2]),
+                            stateArray);
                     }
                     else if (splitLine[1].equalsIgnoreCase("-Q") || splitLine[1]
                         .equalsIgnoreCase("-S") || splitLine[1]
@@ -325,6 +303,7 @@ public class Covid19TrackingManager2 {
         LocalDate topLD = null;
         ArrayList<Integer> averages = null;
         ArrayList<String> uniqueStates = null;
+        int count = 0;
         if (date == 0) {
             topD = dateToStringDash(topDate(DS.getRoot()));
             topLD = LocalDate.parse(topD);
@@ -333,10 +312,11 @@ public class Covid19TrackingManager2 {
             averages = posAverages(records, topNum);
             uniqueStates = uniqueStates(records);
             avg = loadAvg(averages, uniqueStates, records, st);
-            result = TTraverse(avg.getRoot(), st);
+            result = TTraverse(avg.getRoot(), st, 0);
+            count = Math.min(averages.size(), 10);
             String start = dateToString(dateToIntDash(topLD.minusDays(topNum
                 - 1).toString()));
-            System.out.println("Top " + averages.size()
+            System.out.println("Top " + count
                 + " states with the highest average daily positive cases from "
                 + start + " to " + dateToString(topDate(DS.getRoot())) + ":");
         }
@@ -348,13 +328,18 @@ public class Covid19TrackingManager2 {
             averages = posAverages(records, topNum);
             uniqueStates = uniqueStates(records);
             avg = loadAvg(averages, uniqueStates, records, st);
-            result = TTraverse(avg.getRoot(), st);
-            System.out.println("Top " + averages.size()
+            result = TTraverse(avg.getRoot(), st, 0);
+            count = Math.min(averages.size(), 10);
+            String start = dateToString(dateToIntDash(topLD.minusDays(topNum
+                - 1).toString()));
+            System.out.println("Top " + count
                 + " states with the highest average daily positive cases from "
-                + topLD.toString().replaceAll("-", "/") + " to " + dateToString(
-                    date) + ":");
+                + start + " to " + dateToString(date) + ":");
         }
-        System.out.println(result);
+        String[] splitResult = result.split("\n");
+        for (int i = 0; i < count; i++) {
+            System.out.println(splitResult[i]);
+        }
 
     }
 
@@ -378,7 +363,7 @@ public class Covid19TrackingManager2 {
             String state = abConversion(uniqueStates.get(i), st);
             KeyVector<Integer, String, Integer> kv = new KeyVector<>(currAvg,
                 state, null);
-            tree.insertString(kv, rec);
+            tree.insertIntDesc(kv, rec);
         }
         return tree;
     }
@@ -488,16 +473,17 @@ public class Covid19TrackingManager2 {
      */
     public static String TTraverse(
         BSTNode<KeyVector<?, ?, ?>, Record> n,
-        String[] st) {
-
+        String[] st,
+        int curr) {
         StringBuilder builder = new StringBuilder();
-        if (n.right() != null) {
-            builder.append(TTraverse(n.right(), st));
-        }
-        builder.append(n.key().getKey1() + " " + stateConversion(n.key()
-            .getKey2().toString(), st) + "\n");
         if (n.left() != null) {
-            builder.append(TTraverse(n.left(), st));
+            builder.append(TTraverse(n.left(), st, curr));
+        }
+        builder.append(stateConversion(n.key().getKey2().toString(), st) + " "
+            + n.key().getKey1() + "\n");
+
+        if (n.right() != null) {
+            builder.append(TTraverse(n.right(), st, curr));
         }
         return builder.toString();
     }
@@ -656,15 +642,168 @@ public class Covid19TrackingManager2 {
 // return true;
 // }
 
-    public static String searchC(
-        BSTree<KeyVector<?, ?, ?>, Record> tree,
-        int pos) {
-        int count = 0;
-        LocalDate d;
-
+    public static void searchC(
+        BSTree<KeyVector<?, ?, ?>, Record> SD,
+        int pos,
+        String[] st) {
+        ArrayList<Record> records = treeToList(SD.getRoot());
+        BSTree<KeyVector<?, ?, ?>, String> tree = treeC(pos, records, st);
 // HashSet<String> s = getUniqueStates(tree);
-        return "";
+        if (tree.size() == 0) {
+            System.out.println(tree.size()
+                + " states have daily numbers of positive cases greater than or equal to "
+                + pos + " for at least 7 days continuously");
+        }
+        else {
+            tree.insert(new KeyVector<String, String, String>("NY",
+                "07/22/2020", null), "08/02/2020");
+            tree.insert(new KeyVector<String, String, String>("NJ",
+                "07/20/2020", null), "07/30/2020");
+            String result = CTraverse(tree.getRoot(), st, "Start");
+            System.out.print(result);
+            System.out.println(tree.size()
+                + " states have daily numbers of positive cases greater than or equal to "
+                + pos + " for at least 7 days continuously");
+        }
 
+    }
+
+
+    /**
+     * @param root
+     * @return
+     */
+    private static String CTraverse(
+        BSTNode<KeyVector<?, ?, ?>, String> n,
+        String[] st,
+        String element) {
+        StringBuilder builder = new StringBuilder();
+        String currElement = (String)n.key().getKey1();
+        if (n.left() != null) {
+            builder.append(CTraverse(n.left(), st, currElement));
+        }
+        if (!currElement.equals(element)) {
+            builder.append("State " + stateConversion(n.key().getKey1()
+                .toString(), st) + "\n" + n.key().getKey2() + " - " + n
+                    .element() + "\n");
+        }
+        else {
+            builder.append(n.key().getKey2() + " - " + n.element() + "\n");
+        }
+
+        if (n.right() != null) {
+            builder.append(CTraverse(n.right(), st, currElement));
+        }
+        return builder.toString();
+    }
+
+
+    /**
+     * @param pos
+     * @param records
+     * @return
+     */
+    public static BSTree<KeyVector<?, ?, ?>, String> treeC(
+        int pos,
+        ArrayList<Record> r,
+        String[] st) {
+        ArrayList<String> states = new ArrayList<>();
+        ArrayList<String> starts = new ArrayList<>();
+        ArrayList<String> ends = new ArrayList<>();
+        int consec;
+        int j;
+        for (int i = 0; i < r.size(); i++) {
+            Record curr = r.get(i);
+            String currState = curr.getState();
+            consec = 1;
+            j = i;
+            if (j != r.size() - 1 && !currState.equalsIgnoreCase(r.get(j + 1)
+                .getState())) {
+                j++;
+            }
+            while (j != r.size() - 1 && currState.equalsIgnoreCase(r.get(j + 1)
+                .getState())) {
+
+                LocalDate currDate = LocalDate.parse(dateToStringDash(r.get(j)
+                    .getDate()));
+                LocalDate nextDate = LocalDate.parse(dateToStringDash(r.get(j
+                    + 1).getDate()));
+                int currPos = r.get(j).getPositive();
+                j++;
+                if (currDate.datesUntil(nextDate).count() == 1
+                    && currPos >= pos) {
+                    consec++;
+                }
+                else {
+                    break;
+                }
+
+            }
+            if (j == r.size() - 1) {
+                if (consec >= 7) {
+                    starts.add(dateToString(curr.getDate()));
+                    ends.add(dateToString(r.get(j - 1).getDate()));
+                    states.add(currState);
+                }
+
+                break;
+            }
+            if (consec >= 7) {
+                starts.add(dateToString(curr.getDate()));
+                ends.add(dateToString(r.get(j - 1).getDate()));
+                states.add(currState);
+            }
+            i = j - 1;
+
+        }
+        BSTree<KeyVector<?, ?, ?>, String> tree = loadC(states, starts, ends,
+            st);
+        return tree;
+    }
+
+
+    /**
+     * @param states
+     * @param starts
+     * @param ends
+     * @param st
+     * @return
+     */
+    public static BSTree<KeyVector<?, ?, ?>, String> loadC(
+        ArrayList<String> states,
+        ArrayList<String> starts,
+        ArrayList<String> ends,
+        String[] st) {
+        BSTree<KeyVector<?, ?, ?>, String> tree =
+            new BSTree<KeyVector<?, ?, ?>, String>();
+        for (int i = 0; i < states.size(); i++) {
+            String state = states.get(i);
+            String start = starts.get(i);
+            String end = ends.get(i);
+            KeyVector<String, String, Integer> kv = new KeyVector<>(state,
+                start, null);
+            tree.insert(kv, end);
+        }
+        return tree;
+    }
+
+
+    /**
+     * @param sD
+     * @return
+     */
+    private static ArrayList<Record> treeToList(
+        BSTNode<KeyVector<?, ?, ?>, Record> n) {
+        ArrayList<Record> r = new ArrayList<Record>();
+        if (n.left() != null) {
+            r.addAll(treeToList(n.left()));
+        }
+        r.add(n.element());
+
+        if (n.right() != null) {
+            r.addAll(treeToList(n.right()));
+        }
+        return r;
     }
 
 
@@ -760,7 +899,7 @@ public class Covid19TrackingManager2 {
         String result;
         if (!grade.equals("")) {
             if (!state.equals("")) {
-                result = QSDNTraverse(grade, state, date, numDays, topDate, GDS
+                result = QSDNTraverse(grade, state, date, numDays, topDate, GSD
                     .getRoot());
             }
             else {

@@ -94,6 +94,77 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
      * @return
      */
     @SuppressWarnings("unchecked")
+    public int compareToIntDesc(KeyVector<?, ?, ?> kv) {
+
+        if (this.key1.compareTo((K1)kv.getKey1()) > 0) {
+            if (this.key1 instanceof Integer) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
+        else if (this.key1.compareTo((K1)kv.getKey1()) < 0) {
+            if (this.key1 instanceof Integer) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+
+        else {
+            if (this.key2.compareTo((K2)kv.getKey2()) > 0) {
+                if (this.key2 instanceof Integer) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            }
+            else if (key2.compareTo((K2)kv.getKey2()) < 0) {
+                if (this.key2 instanceof Integer) {
+                    return -1;
+                }
+                else {
+                    return 1;
+                }
+            }
+
+            else {
+                if (key3 == null) {
+                    return 0;
+                }
+                else if (this.key3.compareTo((K3)kv.getKey3()) > 0) {
+                    if (this.key3 instanceof Integer) {
+                        return 1;
+                    }
+                    else {
+                        return -1;
+                    }
+                }
+                else if (key3.compareTo((K3)kv.getKey3()) < 0) {
+                    if (this.key3 instanceof Integer) {
+                        return -1;
+                    }
+                    else {
+                        return 1;
+                    }
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     * @param o
+     * @return
+     */
+    @SuppressWarnings("unchecked")
     public int compareTo(KeyVector<?, ?, ?> kv) {
         if (this.key1.compareTo((K1)kv.getKey1()) > 0) {
             return -1;
@@ -107,45 +178,6 @@ public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 
                 return -1;
             }
             else if (key2.compareTo((K2)kv.getKey2()) < 0) {
-                return 1;
-            }
-
-            else {
-                if (key3 == null) {
-                    return 0;
-                }
-                else if (this.key3.compareTo((K3)kv.getKey3()) > 0) {
-                    return -1;
-                }
-                else if (key3.compareTo((K3)kv.getKey3()) < 0) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
-            }
-        }
-
-    }
-    
-    /**
-     * @param o
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public int compareToString(KeyVector<?, ?, ?> kv) {
-        if (this.key1.compareTo((K1)kv.getKey1()) > 0) {
-            return -1;
-        }
-        else if (key1.compareTo((K1)kv.getKey1()) < 0) {
-            return 1;
-        }
-
-        else {
-            if (this.key2.compareTo((K2)kv.getKey2()) < 0) {
-                return -1;
-            }
-            else if (key2.compareTo((K2)kv.getKey2()) > 0) {
                 return 1;
             }
 

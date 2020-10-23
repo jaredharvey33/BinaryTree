@@ -60,8 +60,8 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      * Insert a record into the tree. @param k Key value of the record. @param e
      * The record to insert.
      */
-    public void insertString(K k, E e) {
-        root = insertStringHelp(root, k, e);
+    public void insertIntDesc(K k, E e) {
+        root = insertIntDescHelp(root, k, e);
         nodecount++;
     }
 
@@ -129,13 +129,13 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     }
 
 
-    private BSTNode<K, E> insertStringHelp(BSTNode<K, E> rt, K k, E e) {
+    private BSTNode<K, E> insertIntDescHelp(BSTNode<K, E> rt, K k, E e) {
         if (rt == null)
             return new BSTNode<K, E>(k, e);
-        if (rt.key().compareToString(k) < 0)
-            rt.setLeft(inserthelp(rt.left(), k, e));
+        if (rt.key().compareToIntDesc(k) < 0)
+            rt.setLeft(insertIntDescHelp(rt.left(), k, e));
         else
-            rt.setRight(inserthelp(rt.right(), k, e));
+            rt.setRight(insertIntDescHelp(rt.right(), k, e));
         return rt;
     }
 
