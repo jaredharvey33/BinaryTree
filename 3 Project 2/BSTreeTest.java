@@ -79,16 +79,6 @@ public class BSTreeTest extends student.TestCase {
 
 
     /**
-     * tests the insertString method
-     */
-    public void testInsertString() {
-        assertEquals(t.size(), 1);
-        t.insertString(k1, "one");
-        assertEquals(t.size(), 2);
-    }
-
-
-    /**
      * tests the remove method
      */
     public void testRemove() {

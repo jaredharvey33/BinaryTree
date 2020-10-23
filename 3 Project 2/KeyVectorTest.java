@@ -34,25 +34,25 @@ public class KeyVectorTest extends student.TestCase {
 
     public void setUp() {
         nu = new KeyVector<>();
-        kv2 = new KeyVector("one", "two", null);
-        kv3 = new KeyVector("one", "two", "three");
+        kv2 = new KeyVector<String, String, String>("one", "two", null);
+        kv3 = new KeyVector<String, String, String>("one", "two", "three");
 
         // compareTo
-        k1 = new KeyVector(1, 1, 1);
-        k11 = new KeyVector(1, 1, 1);
+        k1 = new KeyVector<Integer, Integer, Integer>(1, 1, 1);
+        k11 = new KeyVector<Integer, Integer, Integer>(1, 1, 1);
 
-        k2 = new KeyVector(2, 1, 1);
-        k3 = new KeyVector(0, 1, 1);
+        k2 = new KeyVector<Integer, Integer, Integer>(2, 1, 1);
+        k3 = new KeyVector<Integer, Integer, Integer>(0, 1, 1);
 
-        k4 = new KeyVector(1, 2, 1);
-        k5 = new KeyVector(1, 0, 1);
+        k4 = new KeyVector<Integer, Integer, Integer>(1, 2, 1);
+        k5 = new KeyVector<Integer, Integer, Integer>(1, 0, 1);
 
         // null key 3
-        kn = new KeyVector(1, 1, null);
-        kn2 = new KeyVector(1, 1, null);
+        kn = new KeyVector<Integer,Integer,Integer>(1, 1, null);
+        kn2 = new KeyVector<Integer, Integer, Integer>(1, 1, null);
 
-        k6 = new KeyVector(1, 1, 2);
-        k7 = new KeyVector(1, 1, 0);
+        k6 = new KeyVector<Integer, Integer, Integer>(1, 1, 2);
+        k7 = new KeyVector<Integer, Integer, Integer>(1, 1, 0);
 
     }
 
@@ -102,27 +102,6 @@ public class KeyVectorTest extends student.TestCase {
 
         assertEquals(k1.compareTo(k7), -1);
         assertEquals(k1.compareTo(k6), 1);
-
-    }
-
-
-    /**
-     * tests the compareToString method
-     */
-    public void testCompareToString() {
-        assertEquals(k1.compareToString(k1), 0);
-
-        assertEquals(k1.compareToString(k3), -1);
-        assertEquals(k1.compareToString(k2), 1);
-
-        assertEquals(k1.compareToString(k5), 1);
-        assertEquals(k1.compareToString(k4), -1);
-
-        assertEquals(kn.compareToString(kn2), 0);
-
-        assertEquals(k1.compareToString(k7), -1);
-        assertEquals(k1.compareToString(k6), 1);
-
     }
 
 }

@@ -100,11 +100,27 @@ public class BSTNode<K, E> {
             rightHeight = right.getHeight();
         }
 
-        if (leftHeight > rightHeight) {
-            return leftHeight + 1;
-        }
-        else {
+        if (rightHeight > leftHeight) {
             return rightHeight + 1;
         }
+        else {
+            return leftHeight + 1;
+        }
+    }
+
+
+    public int getLevel(BSTNode<K, E> rt, E e, int l) {
+        if (rt == null)
+            return 0;
+        if (rt.element().equals(e))
+            return l;
+
+        int result = getLevel(rt.left, e, l + 1);
+        if (result != 0) {
+            return result;
+        }
+        result = getLevel(rt.right, e, l + 1);
+
+        return result;
     }
 }

@@ -101,7 +101,7 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     private E findhelp(BSTNode<K, E> rt, K k) {
         if (rt == null)
             return null;
-        if (rt.key().compareTo(k) > 0)
+        if (rt.key().compareTo(k) < 0)
             return findhelp(rt.left(), k);
         else if (rt.key().compareTo(k) == 0)
             return rt.element();
@@ -158,9 +158,9 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     private BSTNode<K, E> removehelp(BSTNode<K, E> rt, K k) {
         if (rt == null)
             return null;
-        if (rt.key().compareTo(k) > 0)
+        if (rt.key().compareTo(k) < 0)
             rt.setLeft(removehelp(rt.left(), k));
-        else if (rt.key().compareTo(k) < 0)
+        else if (rt.key().compareTo(k) > 0)
             rt.setRight(removehelp(rt.right(), k));
         else { // Found it, remove it
             if (rt.left() == null)

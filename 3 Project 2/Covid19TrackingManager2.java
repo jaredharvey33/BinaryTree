@@ -55,7 +55,7 @@ public class Covid19TrackingManager2 {
 
         String[] stateArray = states.split("\r\n\r\n");
         // String fileName = args[0];
-        String fileName = "input2.txt";
+        String fileName = "input1.txt";
 
         Scanner scan = null;
         ArrayList<Record> curr = new ArrayList<Record>();
@@ -142,15 +142,84 @@ public class Covid19TrackingManager2 {
                 }
 
             }
-            else if (command.trim().equalsIgnoreCase("summarydata")) {
-                if (line.trim().split(" ").length != 1) {
-                    System.out.println("Discard invalid command name");
-                }
-                printSummary(curr, stateArray);
+            else if (command.trim().equalsIgnoreCase("remove")) {
+                ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> rm = remove(
+                    splitLine[1], treeGSD, treeSD, treeDS, stateArray);
+                treeGSD = rm.get(0);
+                treeSD = rm.get(1);
+                treeDS = rm.get(2);
+
             }
 
         }
 
+    }
+
+
+    /**
+     * 
+     * @param grade
+     * @param treeGSD
+     * @param treeSD
+     * @param treeDS
+     * @param stateArray
+     * @return
+     */
+    public static ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> remove(
+        String grade,
+        BSTree<KeyVector<?, ?, ?>, Record> treeGSD,
+        BSTree<KeyVector<?, ?, ?>, Record> treeSD,
+        BSTree<KeyVector<?, ?, ?>, Record> treeDS,
+        String[] stateArray) {
+        ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> trees =
+            new ArrayList<BSTree<KeyVector<?, ?, ?>, Record>>();
+        ArrayList<Record> removed = removeGrade(grade, treeGSD.getRoot());
+        for (int i = 0; i < removed.size(); i++) {
+            String state = abConversion(removed.get(i).getState(), stateArray);
+            int date = removed.get(i).getDate();
+            String currGrade = removed.get(i).getDataQualityGrade();
+            treeSD.remove(new KeyVector<String, Integer, String>(state, date,
+                null));
+            treeDS.remove(new KeyVector<Integer, String, String>(date, state,
+                null));
+            treeGSD.remove(new KeyVector<String, String, Integer>(currGrade,
+                state, date));
+
+        }
+        System.out.println(removed.size()
+            + " records with quality grade lower or equal to " + grade
+            + " have been removed");
+        trees.add(treeGSD);
+        trees.add(treeSD);
+        trees.add(treeDS);
+        return trees;
+
+    }
+
+
+    /**
+     * 
+     * @param grade
+     * @param n
+     * @return
+     */
+    public static ArrayList<Record> removeGrade(
+        String grade,
+        BSTNode<KeyVector<?, ?, ?>, Record> n) {
+        ArrayList<Record> r = new ArrayList<>();
+        String currGrade = (String)n.key().getKey1();
+
+        if (n.left() != null) {
+            r.addAll(removeGrade(grade, n.left()));
+        }
+        if (!greaterGrade(currGrade, grade)) {
+            r.add(n.element());
+        }
+        if (n.right() != null) {
+            r.addAll(removeGrade(grade, n.right()));
+
+        }
+        return r;
     }
 
 
@@ -373,7 +442,7 @@ public class Covid19TrackingManager2 {
      * @param records
      * @return
      */
-    private static ArrayList<String> uniqueStates(ArrayList<Record> r) {
+    public static ArrayList<String> uniqueStates(ArrayList<Record> r) {
         ArrayList<String> states = new ArrayList<String>();
 
         for (int i = 0; i < r.size() - 1; i++) {
@@ -384,6 +453,7 @@ public class Covid19TrackingManager2 {
         }
         states.add(r.get(r.size() - 1).getState());
         return states;
+
     }
 
 
@@ -571,21 +641,21 @@ public class Covid19TrackingManager2 {
             // left
             dumpBSTHelp(tree, n.left(), op);
             if (n.left() == null && n.right() != null) {
-                for (int i = 0; i < Math.abs(n.right().getHeight() - rt
-                    .getHeight()); i++) {
+                for (int i = 0; i <= n.right().getLevel(rt, n.element(),
+                    0); i++) {
                     System.out.print("  ");
                 }
                 System.out.println("E");
             }
 
-            for (int i = 0; i < Math.abs(n.getHeight() - rt.getHeight()); i++) {
+            for (int i = 0; i < n.getLevel(rt, n.element(), 0); i++) {
                 System.out.print("  ");
             }
             System.out.println(ln);
 
             if (n.left() != null && n.right() == null) {
-                for (int i = 0; i < Math.abs(n.left().getHeight() - rt
-                    .getHeight()); i++) {
+                for (int i = 0; i <= n.left().getLevel(rt, n.element(),
+                    0); i++) {
                     System.out.print("  ");
                 }
                 System.out.println("E");
@@ -655,10 +725,6 @@ public class Covid19TrackingManager2 {
                 + pos + " for at least 7 days continuously");
         }
         else {
-            tree.insert(new KeyVector<String, String, String>("NY",
-                "07/22/2020", null), "08/02/2020");
-            tree.insert(new KeyVector<String, String, String>("NJ",
-                "07/20/2020", null), "07/30/2020");
             String result = CTraverse(tree.getRoot(), st, "Start");
             System.out.print(result);
             System.out.println(tree.size()
@@ -673,14 +739,14 @@ public class Covid19TrackingManager2 {
      * @param root
      * @return
      */
-    private static String CTraverse(
+    public static String CTraverse(
         BSTNode<KeyVector<?, ?, ?>, String> n,
         String[] st,
         String element) {
         StringBuilder builder = new StringBuilder();
         String currElement = (String)n.key().getKey1();
         if (n.left() != null) {
-            builder.append(CTraverse(n.left(), st, currElement));
+            builder.append(CTraverse(n.left(), st, element));
         }
         if (!currElement.equals(element)) {
             builder.append("State " + stateConversion(n.key().getKey1()
@@ -730,9 +796,9 @@ public class Covid19TrackingManager2 {
                     + 1).getDate()));
                 int currPos = r.get(j).getPositive();
                 j++;
-                if (currDate.datesUntil(nextDate).count() == 1
-                    && currPos >= pos) {
-                    consec++;
+                if (nextDate.minusDays(1).isEqual(currDate)
+                    && (currPos >= pos)) {
+                    consec = consec + 1;
                 }
                 else {
                     break;
@@ -750,7 +816,7 @@ public class Covid19TrackingManager2 {
             }
             if (consec >= 7) {
                 starts.add(dateToString(curr.getDate()));
-                ends.add(dateToString(r.get(j - 1).getDate()));
+                ends.add(dateToString(r.get(j).getDate()));
                 states.add(currState);
             }
             i = j - 1;
@@ -792,7 +858,7 @@ public class Covid19TrackingManager2 {
      * @param sD
      * @return
      */
-    private static ArrayList<Record> treeToList(
+    public static ArrayList<Record> treeToList(
         BSTNode<KeyVector<?, ?, ?>, Record> n) {
         ArrayList<Record> r = new ArrayList<Record>();
         if (n.left() != null) {
@@ -1025,13 +1091,10 @@ public class Covid19TrackingManager2 {
         }
         LocalDate d1 = LocalDate.parse(date1);
         LocalDate d2 = LocalDate.parse(date2);
-        int dayCount = (int)d1.datesUntil(d2).count();
-        if (numDays <= dayCount) {
-            return false;
-        }
-        else {
+        if (d2.minusDays(numDays).isBefore(d1)) {
             return true;
         }
+        return false;
     }
 
 // public static HashSet<String> getUniqueStates(
@@ -1428,14 +1491,10 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * Method used to determine which record has a greater grade
      * 
-     * @param one
-     *            first record to check
-     * @param two
-     *            second record to check
+     * @param a
+     * @param b
      * @return
-     *         boolean value indicating if the first record's grade was greater
      */
 
     public static boolean greaterGrade(String a, String b) {
