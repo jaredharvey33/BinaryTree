@@ -13,6 +13,8 @@
 public class KeyVectorTest extends student.TestCase {
 
     private KeyVector<String, String, String> kv3;
+    KeyVector<String, String, String> nu;
+    KeyVector<String, String, String> kv2;
 
     // compareTo
     private KeyVector<Integer, Integer, Integer> k1;
@@ -30,9 +32,8 @@ public class KeyVectorTest extends student.TestCase {
      */
 
     public void setUp() {
-        KeyVector<String, String, String> nu = new KeyVector<>();
-        KeyVector<String, String, String> kv2 =
-            new KeyVector<String, String, String>("one", "two", null);
+        nu = new KeyVector<>();
+        kv2 = new KeyVector<String, String, String>("one", "two", null);
         kv3 = new KeyVector<String, String, String>("one", "two", "three");
 
         // compareTo
@@ -58,6 +59,8 @@ public class KeyVectorTest extends student.TestCase {
      * tests the getKey methods
      */
     public void testGetKey() {
+        assertNull(nu.getKey1());
+        assertNull(kv2.getKey3());
         assertEquals(kv3.getKey1(), "one");
         assertEquals(kv3.getKey2(), "two");
         assertEquals(kv3.getKey3(), "three");

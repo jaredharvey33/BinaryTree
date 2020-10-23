@@ -8,7 +8,12 @@
 /**
  * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
  * @version 2020.10.20
- *
+ ** @param <K1>
+ *            The first key
+ * @param <K2>
+ *            The second key
+ * @param <K3>
+ *            The third key
  */
 public class KeyVector<K1 extends Comparable<K1>, K2 extends Comparable<K2>, K3 extends Comparable<K3>>
     implements Comparable<KeyVector<?, ?, ?>> {
