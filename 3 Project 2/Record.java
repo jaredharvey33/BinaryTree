@@ -101,9 +101,9 @@ public class Record implements Comparable<Record> {
      * @return The formatted information for a record
      */
     public String toStringTab() {
-        return  state + "\t" + dateToString(date) + "\t" + positive + "\t" + negative + "\t"
-            + hospitalized + "\t" + onVentilatorCurrently + "\t"
-            + onVentilatorCumulative + "\t" + recovered + "\t"
+        return state + "\t" + dateToString(date) + "\t" + positive + "\t"
+            + negative + "\t" + hospitalized + "\t" + onVentilatorCurrently
+            + "\t" + onVentilatorCumulative + "\t" + recovered + "\t"
             + dataQualityGrade + "\t" + death;
 
     }
