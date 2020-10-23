@@ -6,13 +6,18 @@
 // -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
 
 /**
+ * 
  * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
  * @version 2020.10.20
  *
+ * @param <K>
+ *            the key
+ * @param <E>
+ *            the element
  */
 public class BSTree<K extends KeyVector<?, ?, ?>, E> {
     private BSTNode<K, E> root; // Root of BST
-    int nodecount; // Size of BST
+    private int nodecount; // Size of BST
 
     /** Constructor */
     BSTree() {
@@ -46,8 +51,12 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
 
 
     /**
-     * Insert a record into the tree. @param k Key value of the record. @param e
-     * The record to insert.
+     * Insert a record into the tree.
+     * 
+     * @param k
+     *            Key value of the record.
+     * @param e
+     *            The record to insert.
      */
     public void insert(K k, E e) {
         root = inserthelp(root, k, e);
@@ -56,8 +65,12 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
 
 
     /**
-     * Insert a record into the tree. @param k Key value of the record. @param e
-     * The record to insert.
+     * Insert a record into the tree.
+     * 
+     * @param k
+     *            Key value of the record.
+     * @param e
+     *            The record to insert.
      */
     public void insertIntDesc(K k, E e) {
         root = insertIntDescHelp(root, k, e);
@@ -118,14 +131,18 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      *         the record if it was found, null if it was not found
      */
     private E findhelp(BSTNode<K, E> rt, K k) {
-        if (rt == null)
+        if (rt == null) {
             return null;
-        if (rt.key().compareTo(k) < 0)
+        }
+        if (rt.key().compareTo(k) < 0) {
             return findhelp(rt.left(), k);
-        else if (rt.key().compareTo(k) == 0)
+        }
+        else if (rt.key().compareTo(k) == 0) {
             return rt.element();
-        else
+        }
+        else {
             return findhelp(rt.right(), k);
+        }
     }
 
 
@@ -141,12 +158,15 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      * @return returns the inserted node
      */
     private BSTNode<K, E> inserthelp(BSTNode<K, E> rt, K k, E e) {
-        if (rt == null)
+        if (rt == null) {
             return new BSTNode<K, E>(k, e);
-        if (rt.key().compareTo(k) < 0)
+        }
+        if (rt.key().compareTo(k) < 0) {
             rt.setLeft(inserthelp(rt.left(), k, e));
-        else
+        }
+        else {
             rt.setRight(inserthelp(rt.right(), k, e));
+        }
         return rt;
     }
 
@@ -160,10 +180,12 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      *         minimum node
      */
     private BSTNode<K, E> getmin(BSTNode<K, E> rt) {
-        if (rt.left() == null)
+        if (rt.left() == null) {
             return rt;
-        else
+        }
+        else {
             return getmin(rt.left());
+        }
     }
 
 

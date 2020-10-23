@@ -1101,21 +1101,21 @@ public class Covid19TrackingManager2 {
         if (!grade.equals("")) {
             if (!state.equals("")) {
                 result = QSDNTraverse(grade, state, date, numDays, topDate, GSD
-                    .getRoot());
+                    .getRoot(), st);
             }
             else {
                 result = QSDNTraverse(grade, state, date, numDays, topDate, SD
-                    .getRoot());
+                    .getRoot(), st);
             }
         }
         else if (!state.equals("")) {
             result = QSDNTraverse(grade, state, date, numDays, topDate, SD
-                .getRoot());
+                .getRoot(), st);
 
         }
         else {
-            result = QSDNTraverse(grade, state, date, numDays, topDate, DS
-                .getRoot());
+            result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+                .getRoot(), st);
 
         }
         int lines;
@@ -1184,7 +1184,8 @@ public class Covid19TrackingManager2 {
         int date,
         int numDays,
         int topD,
-        BSTNode<KeyVector<?, ?, ?>, Record> n) {
+        BSTNode<KeyVector<?, ?, ?>, Record> n,
+        String[] st) {
 
         Record curr = n.element();
         String grade1 = grade;
@@ -1206,17 +1207,17 @@ public class Covid19TrackingManager2 {
 
         if (n.left() != null) {
             builder.append(QSDNTraverse(grade1, state1, date1, numDays, topD, n
-                .left()));
+                .left(), st));
         }
-        if (greaterGradeEqual(curr.getDataQualityGrade(), grade) && state
-            .equals(curr.getState()) && date == curr.getDate() && dateInRange(
-                dateToStringDash(curr.getDate()), dateToStringDash(date),
-                numDays) && range) {
+        if (greaterGradeEqual(curr.getDataQualityGrade(), grade)
+            && abConversion(state, st).equals(abConversion(curr.getState(), st))
+            && date == curr.getDate() && dateInRange(dateToStringDash(curr
+                .getDate()), dateToStringDash(date), numDays) && range) {
             builder.append(curr.toStringTab() + "\n");
         }
         if (n.right() != null) {
             builder.append(QSDNTraverse(grade1, state1, date1, numDays, topD, n
-                .right()));
+                .right(), st));
         }
         return builder.toString();
     }
@@ -1922,16 +1923,21 @@ public class Covid19TrackingManager2 {
      *         the state's full name
      */
     public static String abConversion(String ab, String[] s) {
+        ab = ab.toLowerCase().replaceAll("\\s+", "");
         for (int i = 0; i < s.length; i++) {
-            if (ab.equalsIgnoreCase(s[i].split(" - ")[1])) {
-                return s[i].split(" - ")[0];
+            if (ab.equalsIgnoreCase(s[i].split(" - ")[1].toLowerCase()
+                .replaceAll("\\s+", ""))) {
+                return s[i].split(" - ")[0].toLowerCase().replaceAll("\\s+",
+                    "");
             }
-            else if (ab.equalsIgnoreCase(s[i].split(" - ")[0])) {
-                return s[i].split(" - ")[0];
+            else if (ab.equalsIgnoreCase(s[i].split(" - ")[0].toLowerCase()
+                .replaceAll("\\s+", ""))) {
+                return s[i].split(" - ")[0].toLowerCase().replaceAll("\\s+",
+                    "");
             }
         }
 
-        return null;
+        return ab;
     }
 
 
