@@ -19,6 +19,7 @@ public class BSTNodeTest extends student.TestCase {
     private BSTNode<String, Integer> n4;
     private BSTNode<String, Integer> n5;
     private BSTNode<String, Integer> n6;
+    private BSTNode<String, Integer> n7;
 
     /**
      * sets up the tests classes.
@@ -38,10 +39,19 @@ public class BSTNodeTest extends student.TestCase {
         n2.setRight(n1);
 
         n6 = new BSTNode<>("test4", 80);
+        n7 = new BSTNode<>("test",50,n1,n2);
 
     }// end setUp
 
 
+    /**
+     * tests the constructor method
+     */
+    public void testConstructor() {
+        assertEquals((int)n7.left().element(),20);
+      
+    }
+    
     /**
      * tests the Key method
      */
