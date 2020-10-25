@@ -28,6 +28,8 @@ public class BSTreeTest extends student.TestCase {
     private BSTree<KeyVector<Integer, Integer, Integer>, Integer> t22;
     private BSTree<KeyVector<Integer, Integer, Integer>, Integer> t33;
     private BSTree<KeyVector<Integer, Integer, Integer>, Integer> tI;
+    private BSTree<KeyVector<Integer, Integer, Integer>, Integer> tR;
+    private BSTree<KeyVector<Integer, Integer, Integer>, Integer> tL;
 
     /**
      * sets up the tests classes.
@@ -49,6 +51,8 @@ public class BSTreeTest extends student.TestCase {
         t33 = new BSTree<>();
         t33.setRoot(new BSTNode<>(k22, 2));
         tI = new BSTree<>();
+        tR = new BSTree<>();
+        tL = new BSTree<>();
 
     }
 
@@ -91,6 +95,9 @@ public class BSTreeTest extends student.TestCase {
         assertNull(t.remove(k2)); // null
         assertEquals(t.size(), 1);
 
+        // remove empty root
+        assertNull(tI.remove(k11));
+
         t33.insert(k11, 1); // left
         t33.insert(k33, 3); // right
         // 2 remove right
@@ -105,10 +112,18 @@ public class BSTreeTest extends student.TestCase {
         // 1 remove right
         assertEquals((int)t33.remove(k33), 3);
 
-        assertEquals(t33.getRoot().key(), k22);
-
+        t33.insert(k11, 1); // left
+        t33.insert(k33, 3); // right
         // 2 remove root
         assertEquals((int)t33.remove(k22), 2);
+
+        tR.setRoot(new BSTNode<>(k22, 2));
+        tR.insert(k33, 3); // right
+        assertEquals((int)tR.remove(k33), 3);
+
+        tL.setRoot(new BSTNode<>(k22, 2));
+        tL.insert(k11, 1); // Left
+        assertEquals((int)tL.remove(k11), 1);
 
     }
 
