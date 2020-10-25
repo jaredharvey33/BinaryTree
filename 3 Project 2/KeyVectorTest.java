@@ -26,7 +26,7 @@ public class KeyVectorTest extends student.TestCase {
     private KeyVector<Integer, Integer, Integer> kn2;
     private KeyVector<Integer, Integer, Integer> k6;
     private KeyVector<Integer, Integer, Integer> k7;
-    //compareToDesc 
+    // compareToDesc
     private KeyVector<String, String, String> kS1;
     private KeyVector<String, String, String> kS2;
     private KeyVector<String, String, String> kS3;
@@ -62,22 +62,22 @@ public class KeyVectorTest extends student.TestCase {
 
         k6 = new KeyVector<Integer, Integer, Integer>(1, 1, 2);
         k7 = new KeyVector<Integer, Integer, Integer>(1, 1, 0);
-        
-        //compareToDesc
-        kS1 = new KeyVector<String,String,String>("b","b","b");
 
-        kS2 = new KeyVector<String,String,String>("c","b","b");
-        kS3 = new KeyVector<String,String,String>("a","b","b");
-        
-        kS4 = new KeyVector<String,String,String>("b","c", "c");
-        kS5 = new KeyVector<String,String,String>("b", "a", "b");
+        // compareToDesc
+        kS1 = new KeyVector<String, String, String>("b", "b", "b");
+
+        kS2 = new KeyVector<String, String, String>("c", "b", "b");
+        kS3 = new KeyVector<String, String, String>("a", "b", "b");
+
+        kS4 = new KeyVector<String, String, String>("b", "c", "c");
+        kS5 = new KeyVector<String, String, String>("b", "a", "b");
 
         // null key 3
-        kSn = new KeyVector<String,String,String>("b","b", null);
-        kSn2 = new KeyVector<String,String,String>("b", "b", null);
+        kSn = new KeyVector<String, String, String>("b", "b", null);
+        kSn2 = new KeyVector<String, String, String>("b", "b", null);
 
-        kS6 = new KeyVector<String,String,String>("b","b","c");
-        kS7 = new KeyVector<String,String,String>("b", "b", "a");
+        kS6 = new KeyVector<String, String, String>("b", "b", "c");
+        kS7 = new KeyVector<String, String, String>("b", "b", "a");
 
     }
 
@@ -147,10 +147,9 @@ public class KeyVectorTest extends student.TestCase {
 
         assertEquals(kS1.compareToIntDesc(kS7), -1);
         assertEquals(kS1.compareToIntDesc(kS6), 1);
-        
-        
+
         assertEquals(kS1.compareToIntDesc(kS7), -1);
-        assertEquals(kS1.compareToIntDesc(kS6), s1);
+        assertEquals(kS1.compareToIntDesc(kS6), 1);
     }
 
 }

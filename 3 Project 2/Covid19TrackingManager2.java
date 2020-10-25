@@ -754,7 +754,7 @@ public class Covid19TrackingManager2 {
      * @param st
      *            array of state names/abbreviations
      */
-    public static void searchC(
+    public static int searchC(
         BSTree<KeyVector<?, ?, ?>, Record> SD,
         int pos,
         String[] st) {
@@ -773,6 +773,7 @@ public class Covid19TrackingManager2 {
                 + " states have daily numbers of positive cases greater than or equal to "
                 + pos + " for at least 7 days continuously");
         }
+        return tree.size();
 
     }
 
@@ -1091,7 +1092,7 @@ public class Covid19TrackingManager2 {
         if (!state.equals("")) {
             ans = ans.concat(" for state " + stateConversion(state, st));
         }
-        if (date != 0) {
+        if (date != 0 && numDays == 0) {
             ans = ans.concat(" on date " + dateToString(date));
         }
         if (numDays != 0) {
@@ -1106,7 +1107,7 @@ public class Covid19TrackingManager2 {
                 LocalDate first = d.minusDays(numDays - 1);
                 String firstD = dateToString(dateToIntDash(first.toString()));
                 ans = ans.concat(" from " + firstD + " to " + dateToString(
-                    topDate(DS.getRoot())));
+                    date));
             }
 
         }
@@ -1160,8 +1161,10 @@ public class Covid19TrackingManager2 {
         }
         else {
             range = dateInRange(dateToStringDash(curr.getDate()),
-                dateToStringDash(topD), numDays);
-            date = curr.getDate();
+                dateToStringDash(date), numDays);
+            if (numDays != 0) {
+                date = curr.getDate();
+            }
 
         }
         StringBuilder builder = new StringBuilder();
@@ -1172,8 +1175,7 @@ public class Covid19TrackingManager2 {
         }
         if (greaterGradeEqual(curr.getDataQualityGrade(), grade)
             && abConversion(state, st).equals(abConversion(curr.getState(), st))
-            && date == curr.getDate() && dateInRange(dateToStringDash(curr
-                .getDate()), dateToStringDash(date), numDays) && range) {
+            && date == curr.getDate() && range) {
             builder.append(curr.toStringTab() + "\n");
         }
         if (n.right() != null) {
@@ -1202,7 +1204,8 @@ public class Covid19TrackingManager2 {
         }
         LocalDate d1 = LocalDate.parse(date1);
         LocalDate d2 = LocalDate.parse(date2);
-        if (d2.minusDays(numDays).isBefore(d1)) {
+        if (d2.minusDays(numDays).isBefore(d1) && (d1.isBefore(d2) || d1
+            .isEqual(d2))) {
             return true;
         }
         return false;

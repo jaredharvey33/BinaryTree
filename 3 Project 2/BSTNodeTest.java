@@ -39,7 +39,7 @@ public class BSTNodeTest extends student.TestCase {
         n2.setRight(n1);
 
         n6 = new BSTNode<>("test4", 80);
-        n7 = new BSTNode<>("test",50,n1,n2);
+        n7 = new BSTNode<>("test", 50, n1, n2);
 
     }// end setUp
 
@@ -48,10 +48,11 @@ public class BSTNodeTest extends student.TestCase {
      * tests the constructor method
      */
     public void testConstructor() {
-        assertEquals((int)n7.left().element(),20);
-      
+        assertEquals((int)n7.left().element(), 20);
+
     }
-    
+
+
     /**
      * tests the Key method
      */
@@ -102,7 +103,7 @@ public class BSTNodeTest extends student.TestCase {
     /**
      * tests the SetLeft method
      */
-    public void tesSetLeft() {
+    public void testSetLeft() {
         assertEquals(n5.left(), n3);
         n5.setLeft(n2);
         assertEquals(n5.left(), n2);
@@ -113,7 +114,7 @@ public class BSTNodeTest extends student.TestCase {
     /**
      * tests the Right method
      */
-    public void testright() {
+    public void testRight() {
         assertEquals(n5.right(), n2);
 
     }
@@ -122,7 +123,7 @@ public class BSTNodeTest extends student.TestCase {
     /**
      * tests the SetRight method
      */
-    public void tesSetRight() {
+    public void testSetRight() {
         assertEquals(n5.right(), n2);
         n5.setRight(n3);
         assertEquals(n5.right(), n3);
