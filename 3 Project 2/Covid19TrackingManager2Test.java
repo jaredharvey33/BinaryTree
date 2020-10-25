@@ -27,9 +27,6 @@ public class Covid19TrackingManager2Test extends student.TestCase {
     private Record r1Copy;
     private Record r2;
     private Record r4;
-    private Record r5;
-    private Record r4Copy;
-    private Record r5Copy;
     private Record r6;
     private Record r7;
 
@@ -37,6 +34,10 @@ public class Covid19TrackingManager2Test extends student.TestCase {
     private ArrayList<Record> sortDate;
     private ArrayList<Record> sortState;
     private ArrayList<Record> records;
+
+    private BSTree<KeyVector<?, ?, ?>, Record> t1;
+    private BSTree<KeyVector<?, ?, ?>, Record> t2;
+    private BSTree<KeyVector<?, ?, ?>, Record> t3;
 
     /**
      * sets up the tests classes.
@@ -92,25 +93,67 @@ public class Covid19TrackingManager2Test extends student.TestCase {
         sortState.add(r1);
         // Testing Greater Grade
         r4 = new Record(20200815, "AK", 5, 1, 6, 1, 1, 1, "A+", 1);
-        r5 = new Record(20200815, "AK", 1, 1, 1, 1, 1, 1, "A-", 1);
-        r4Copy = new Record(20200815, "AK", 1, 1, 1, 1, 1, 1, "C+", 1);
-        r5Copy = new Record(20200815, "AK", 1, 1, 1, 1, 1, 1, "A-", 1);
         // testing isDuplicate
         r6 = new Record(20200810, "AK", 1, 1, 1, 1, 1, 1, "A", 1);
         r7 = new Record(20200810, "WI", 1, 1, 1, 1, 1, 1, "A", 1);
         records = new ArrayList<>();
+        t1 = new BSTree<KeyVector<?, ?, ?>, Record>();
+        t2 = new BSTree<KeyVector<?, ?, ?>, Record>();
+        t3 = new BSTree<KeyVector<?, ?, ?>, Record>();
+        t2.insert(new KeyVector<String, Integer, String>(r1.getState(), r1
+            .getDate()), r1);
+        t2.insert(new KeyVector<String, Integer, String>(r2.getState(), r2
+            .getDate()), r2);
+        t2.insert(new KeyVector<String, Integer, String>(r4.getState(), r4
+            .getDate()), r4);
 
     }
 
 
     /**
-     * tests the
-     * load method
+     * tests the load method
      */
 
     public void testLoad() {
-        assertTrue(Covid19TrackingManager2.load("Sample_input2.csv", stateArray,
+        assertTrue(Covid19TrackingManager2.load("Sample_Input2.csv", stateArray,
             records));
+    }
+
+
+    /**
+     * tests the searchT method
+     */
+    public void testSearchT() {
+        Covid19TrackingManager2.load("Sample_Input1.csv", stateArray, records);
+        t3 = Covid19TrackingManager2.loadTree(records, 1, stateArray);
+        t2 = Covid19TrackingManager2.loadTree(records, 2, stateArray);
+        assertEquals(Covid19TrackingManager2.searchT(t3, t2, "search -T 23"
+            .split(" "), stateArray), 7);
+        assertEquals(Covid19TrackingManager2.searchT(t3, t2,
+            "search -T 23 -D 07/21/2020".split(" "), stateArray), 7);
+    }
+
+
+    /**
+     * tests the searchQSDN method
+     */
+    public void testSearchQSDN() {
+        Covid19TrackingManager2.load("Sample_Input1.csv", stateArray, records);
+        t3 = Covid19TrackingManager2.loadTree(records, 1, stateArray);
+        t2 = Covid19TrackingManager2.loadTree(records, 2, stateArray);
+        assertEquals(Covid19TrackingManager2.searchQSDN(t3, t2,
+            "search -Q C -S SC".split(" "), stateArray), 4);
+        assertEquals(Covid19TrackingManager2.searchQSDN(t3, t2, "search -S hhhh"
+            .split(" "), stateArray), 0);
+        assertEquals(Covid19TrackingManager2.searchQSDN(t3, t2, "search -Q G"
+            .split(" "), stateArray), 0);
+        assertEquals(Covid19TrackingManager2.searchQSDN(t3, t2, "search -N 13"
+            .split(" "), stateArray), 15);
+        assertEquals(Covid19TrackingManager2.searchQSDN(t3, t2,
+            "search -N 20 -D 07/25/2020".split(" "), stateArray), 26);
+        assertEquals(Covid19TrackingManager2.searchQSDN(t3, t2,
+            "search -D 02/38/2020".split(" "), stateArray), 0);
+
     }
 
 
@@ -124,6 +167,18 @@ public class Covid19TrackingManager2Test extends student.TestCase {
         assertEquals(Covid19TrackingManager2.isDuplicate(r6, sortState), null);
 
         assertEquals(Covid19TrackingManager2.isDuplicate(r7, sortState), null);
+
+    }
+
+
+    /**
+     * tests the searchC method
+     */
+    public void testSearchC() {
+        Covid19TrackingManager2.load("Sample_Input2.csv", stateArray, records);
+        t1 = Covid19TrackingManager2.loadTree(records, 1, stateArray);
+        assertEquals(Covid19TrackingManager2.searchC(t1, 1, stateArray), 1);
+        assertEquals(Covid19TrackingManager2.searchC(t1, 9000, stateArray), 0);
 
     }
 

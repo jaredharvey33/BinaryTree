@@ -41,7 +41,7 @@ public class BSTNodeTest extends student.TestCase {
         n6 = new BSTNode<>("test4", 80);
         n7 = new BSTNode<>("test", 50, n1, n2);
 
-    }// end setUp
+    } // end setUp
 
 
     /**

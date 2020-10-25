@@ -17,6 +17,7 @@ public class Covid19TrackingManager2 {
      * runner method
      * 
      * @param args
+     *            input
      */
     public static void main(String[] args) {
         // holds the valid states and their abbreviations
@@ -54,8 +55,8 @@ public class Covid19TrackingManager2 {
             + "Wisconsin - WI\r\n" + "\r\n" + "Wyoming - WY";
 
         String[] stateArray = states.split("\r\n\r\n");
-// String fileName = args[0];
-        String fileName = "input1.txt";
+        String fileName = args[0];
+// String fileName = "input2.txt";
 
         Scanner scan = null;
         ArrayList<Record> curr = new ArrayList<Record>();
@@ -121,8 +122,7 @@ public class Covid19TrackingManager2 {
                         .equalsIgnoreCase("-S") || splitLine[1]
                             .equalsIgnoreCase("-D") || splitLine[1]
                                 .equalsIgnoreCase("-N")) {
-                        searchQSDN(treeSD, treeDS, treeGSD, splitLine,
-                            stateArray);
+                        searchQSDN(treeSD, treeDS, splitLine, stateArray);
                     }
                     else if (splitLine[1].equalsIgnoreCase("-T")) {
                         searchT(treeSD, treeDS, splitLine, stateArray);
@@ -177,6 +177,8 @@ public class Covid19TrackingManager2 {
      *            state key tree
      * @param treeDS
      *            date key tree
+     * @param curr
+     *            list of records
      * @param stateArray
      *            array of state names/abbreviations
      * @return the modified trees
@@ -357,18 +359,19 @@ public class Covid19TrackingManager2 {
     /**
      * search method for -T flag
      * 
-     * @param SD
+     * @param sD
      *            state key tree
-     * @param DS
+     * @param dS
      *            date key tree
      * @param ln
      *            command line
      * @param st
      *            array of state names/abbreviations
+     * @return number of records found
      */
-    public static void searchT(
-        BSTree<KeyVector<?, ?, ?>, Record> SD,
-        BSTree<KeyVector<?, ?, ?>, Record> DS,
+    public static int searchT(
+        BSTree<KeyVector<?, ?, ?>, Record> sD,
+        BSTree<KeyVector<?, ?, ?>, Record> dS,
         String[] ln,
         String[] st) {
         BSTree<KeyVector<?, ?, ?>, Record> avg;
@@ -394,13 +397,13 @@ public class Covid19TrackingManager2 {
                     else {
                         System.out.println("The date " + ln[i + 1]
                             + " is not valid");
-                        return;
+                        return 0;
                     }
                 }
                 catch (DateTimeException e) {
                     System.out.println("The date " + ln[i + 1]
                         + " is not valid");
-                    return;
+                    return 0;
                 }
             }
         }
@@ -411,30 +414,30 @@ public class Covid19TrackingManager2 {
         ArrayList<String> uniqueStates = null;
         int count = 0;
         if (date == 0) {
-            topD = dateToStringDash(topDate(DS.getRoot()));
+            topD = dateToStringDash(topDate(dS.getRoot()));
             topLD = LocalDate.parse(topD);
-            ArrayList<Record> records = recordsInRange(SD.getRoot(), topD,
+            ArrayList<Record> records = recordsInRange(sD.getRoot(), topD,
                 topNum);
             averages = posAverages(records, topNum, st);
             uniqueStates = uniqueStates(records);
             avg = loadAvg(averages, uniqueStates, records, st);
-            result = TTraverse(avg.getRoot(), st);
+            result = tTraverse(avg.getRoot(), st);
             count = Math.min(averages.size(), 10);
             String start = dateToString(dateToIntDash(topLD.minusDays(topNum
                 - 1).toString()));
             System.out.println("Top " + count
                 + " states with the highest average daily positive cases from "
-                + start + " to " + dateToString(topDate(DS.getRoot())) + ":");
+                + start + " to " + dateToString(topDate(dS.getRoot())) + ":");
         }
         else {
             topD = dateToStringDash(date);
             topLD = LocalDate.parse(topD);
-            ArrayList<Record> records = recordsInRange(SD.getRoot(), topD,
+            ArrayList<Record> records = recordsInRange(sD.getRoot(), topD,
                 topNum);
             averages = posAverages(records, topNum, st);
             uniqueStates = uniqueStates(records);
             avg = loadAvg(averages, uniqueStates, records, st);
-            result = TTraverse(avg.getRoot(), st);
+            result = tTraverse(avg.getRoot(), st);
             count = Math.min(averages.size(), 10);
             String start = dateToString(dateToIntDash(topLD.minusDays(topNum
                 - 1).toString()));
@@ -446,6 +449,7 @@ public class Covid19TrackingManager2 {
         for (int i = 0; i < count; i++) {
             System.out.println(splitResult[i]);
         }
+        return count;
 
     }
 
@@ -511,6 +515,8 @@ public class Covid19TrackingManager2 {
      *            list of records
      * @param days
      *            number of days
+     * @param st
+     *            array of valid state names
      * @return list of averages
      */
     public static ArrayList<Integer> posAverages(
@@ -601,29 +607,30 @@ public class Covid19TrackingManager2 {
      * @param st
      *            array of state names/abbreviations
      * @param curr
-     * @return
+     * @return string for the traversal
      */
-    public static String TTraverse(
+    public static String tTraverse(
         BSTNode<KeyVector<?, ?, ?>, Record> n,
         String[] st) {
         StringBuilder builder = new StringBuilder();
         if (n.left() != null) {
-            builder.append(TTraverse(n.left(), st));
+            builder.append(tTraverse(n.left(), st));
         }
         builder.append(stateConversion(n.key().getKey2().toString(), st) + " "
             + n.key().getKey1() + "\n");
 
         if (n.right() != null) {
-            builder.append(TTraverse(n.right(), st));
+            builder.append(tTraverse(n.right(), st));
         }
         return builder.toString();
     }
 
 
     /**
+     * loads a tree with elements from list
      * 
      * @param c
-     *            creates a tree based on the option
+     *            list of records
      * @param op
      *            the option
      * @param st
@@ -659,12 +666,19 @@ public class Covid19TrackingManager2 {
             for (int i = 0; i < c.size(); i++) {
                 Record curr = c.get(i);
                 String state = abConversion(curr.getState(), st);
+
                 String grade = curr.getDataQualityGrade();
+
                 int date = curr.getDate();
+
                 KeyVector<String, String, Integer> kv = new KeyVector<>(grade,
+
                     state, date);
+
                 tree.insert(kv, curr);
+
             }
+
         }
         return tree;
     }
@@ -747,34 +761,58 @@ public class Covid19TrackingManager2 {
     /**
      * method for the -C flag
      * 
-     * @param SD
+     * @param sD
      *            state key tree
      * @param pos
      *            minimum number of positive cases
      * @param st
      *            array of state names/abbreviations
+     * @return number of records found
      */
     public static int searchC(
-        BSTree<KeyVector<?, ?, ?>, Record> SD,
+        BSTree<KeyVector<?, ?, ?>, Record> sD,
         int pos,
         String[] st) {
-        ArrayList<Record> records = treeToList(SD.getRoot());
+        int count = 0;
+        ArrayList<Record> records = treeToList(sD.getRoot());
         BSTree<KeyVector<?, ?, ?>, String> tree = treeC(pos, records, st);
-// HashSet<String> s = getUniqueStates(tree);
         if (tree.size() == 0) {
             System.out.println(tree.size()
-                + " states have daily numbers of positive cases greater than or equal to "
-                + pos + " for at least 7 days continuously");
+                + " states have daily numbers of positive"
+                + " cases greater than or equal to " + pos
+                + " for at least 7 days continuously");
         }
         else {
-            String result = CTraverse(tree.getRoot(), st, "Start");
+            String result = cTraverse(tree.getRoot(), st, "Start");
+            count = countWords(result.split(" |\n"), "State");
             System.out.print(result);
-            System.out.println(tree.size()
-                + " states have daily numbers of positive cases greater than or equal to "
-                + pos + " for at least 7 days continuously");
+            System.out.println(count
+                + " states have daily numbers of positive cases"
+                + " greater than or equal to " + pos
+                + " for at least 7 days continuously");
         }
-        return tree.size();
+        return count;
 
+    }
+
+
+    /**
+     * counts how many times a string is present in an array
+     * 
+     * @param split
+     *            array of words to check
+     * @param string
+     *            word to check for
+     * @return number of times string is encountered
+     */
+    public static int countWords(String[] split, String string) {
+        int c = 0;
+        for (int i = 0; i < split.length; i++) {
+            if (string.equals(split[i])) {
+                c++;
+            }
+        }
+        return c;
     }
 
 
@@ -789,14 +827,14 @@ public class Covid19TrackingManager2 {
      *            previous element
      * @return string output for -C flag
      */
-    public static String CTraverse(
+    public static String cTraverse(
         BSTNode<KeyVector<?, ?, ?>, String> n,
         String[] st,
         String element) {
         StringBuilder builder = new StringBuilder();
         String currElement = (String)n.key().getKey1();
         if (n.left() != null) {
-            builder.append(CTraverse(n.left(), st, element));
+            builder.append(cTraverse(n.left(), st, element));
         }
         if (!currElement.equals(element)) {
             builder.append("State " + stateConversion(n.key().getKey1()
@@ -808,7 +846,7 @@ public class Covid19TrackingManager2 {
         }
 
         if (n.right() != null) {
-            builder.append(CTraverse(n.right(), st, currElement));
+            builder.append(cTraverse(n.right(), st, currElement));
         }
         return builder.toString();
     }
@@ -973,21 +1011,19 @@ public class Covid19TrackingManager2 {
     /**
      * method for the QDSN search flags
      * 
-     * @param SD
+     * @param sD
      *            state key tree
-     * @param DS
-     *            date key tree
-     * @param GSD
+     * @param dS
      *            date key tree
      * @param ln
      *            search command
      * @param st
      *            array of state names/abbreviations
+     * @return number of records found
      */
-    public static void searchQSDN(
-        BSTree<KeyVector<?, ?, ?>, Record> SD,
-        BSTree<KeyVector<?, ?, ?>, Record> DS,
-        BSTree<KeyVector<?, ?, ?>, Record> GSD,
+    public static int searchQSDN(
+        BSTree<KeyVector<?, ?, ?>, Record> sD,
+        BSTree<KeyVector<?, ?, ?>, Record> dS,
         String[] ln,
         String[] st) {
         String grade = "";
@@ -1004,7 +1040,7 @@ public class Covid19TrackingManager2 {
                 else {
                     System.out.println(ln[i + 1]
                         + " is not a valid quality grade");
-                    return;
+                    return 0;
                 }
 
             }
@@ -1016,7 +1052,7 @@ public class Covid19TrackingManager2 {
                 else {
                     System.out.println("The state " + ln[i + 1]
                         + " does not exist");
-                    return;
+                    return 0;
                 }
             }
 
@@ -1036,13 +1072,13 @@ public class Covid19TrackingManager2 {
                     else {
                         System.out.println("The date " + ln[i + 1]
                             + " is not valid");
-                        return;
+                        return 0;
                     }
                 }
                 catch (DateTimeException e) {
                     System.out.println("The date " + ln[i + 1]
                         + " is not valid");
-                    return;
+                    return 0;
                 }
             }
             else if (ln[i].equals("-N")) {
@@ -1050,28 +1086,28 @@ public class Covid19TrackingManager2 {
             }
         }
 
-        int topDate = topDate(SD.getRoot());
+        int topDate = topDate(sD.getRoot());
         System.out.println("date\tstate\tpositive\tnegative\thospitalized\t"
             + "onVentilatorCurrently\tonVentilatorCumulative\t"
             + "recovered\tdataQualityGrade\tdeath");
         String result;
         if (!grade.equals("")) {
             if (!state.equals("")) {
-                result = QSDNTraverse(grade, state, date, numDays, topDate, GSD
+                result = qSDNTraverse(grade, state, date, numDays, topDate, sD
                     .getRoot(), st);
             }
             else {
-                result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+                result = qSDNTraverse(grade, state, date, numDays, topDate, sD
                     .getRoot(), st);
             }
         }
         else if (!state.equals("")) {
-            result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+            result = qSDNTraverse(grade, state, date, numDays, topDate, sD
                 .getRoot(), st);
 
         }
         else {
-            result = QSDNTraverse(grade, state, date, numDays, topDate, SD
+            result = qSDNTraverse(grade, state, date, numDays, topDate, sD
                 .getRoot(), st);
 
         }
@@ -1097,11 +1133,11 @@ public class Covid19TrackingManager2 {
         }
         if (numDays != 0) {
             if (date == 0) {
-                LocalDate first = LocalDate.parse(dateToStringDash(topDate(DS
+                LocalDate first = LocalDate.parse(dateToStringDash(topDate(dS
                     .getRoot()))).minusDays(numDays - 1);
                 String firstD = dateToString(dateToIntDash(first.toString()));
                 ans = ans.concat(" from " + firstD + " to " + dateToString(
-                    topDate(DS.getRoot())));
+                    topDate(dS.getRoot())));
             }
             else {
                 LocalDate first = d.minusDays(numDays - 1);
@@ -1113,6 +1149,7 @@ public class Covid19TrackingManager2 {
         }
         ans = ans.replaceAll("\\s+", " ").trim();
         System.out.println(ans);
+        return lines;
 
     }
 
@@ -1132,9 +1169,11 @@ public class Covid19TrackingManager2 {
      *            top date
      * @param n
      *            tree root
+     * @param st
+     *            array of valid state names
      * @return string output for command
      */
-    public static String QSDNTraverse(
+    public static String qSDNTraverse(
         String grade,
         String state,
         int date,
@@ -1170,7 +1209,7 @@ public class Covid19TrackingManager2 {
         StringBuilder builder = new StringBuilder();
 
         if (n.left() != null) {
-            builder.append(QSDNTraverse(grade1, state1, date1, numDays, topD, n
+            builder.append(qSDNTraverse(grade1, state1, date1, numDays, topD, n
                 .left(), st));
         }
         if (greaterGradeEqual(curr.getDataQualityGrade(), grade)
@@ -1179,7 +1218,7 @@ public class Covid19TrackingManager2 {
             builder.append(curr.toStringTab() + "\n");
         }
         if (n.right() != null) {
-            builder.append(QSDNTraverse(grade1, state1, date1, numDays, topD, n
+            builder.append(qSDNTraverse(grade1, state1, date1, numDays, topD, n
                 .right(), st));
         }
         return builder.toString();
@@ -1204,11 +1243,8 @@ public class Covid19TrackingManager2 {
         }
         LocalDate d1 = LocalDate.parse(date1);
         LocalDate d2 = LocalDate.parse(date2);
-        if (d2.minusDays(numDays).isBefore(d1) && (d1.isBefore(d2) || d1
-            .isEqual(d2))) {
-            return true;
-        }
-        return false;
+        return d2.minusDays(numDays).isBefore(d1) && (d1.isBefore(d2) || d1
+            .isEqual(d2));
     }
 
 
@@ -1247,20 +1283,23 @@ public class Covid19TrackingManager2 {
         }
 
         if (n.right() != null && n.left() != null) {
-            if (curr < Math.max(topDate(n.left()), topDate(n.right())))
+            if (curr < Math.max(topDate(n.left()), topDate(n.right()))) {
                 curr = Math.max(topDate(n.left()), topDate(n.right()));
+            }
         }
 
         // Recursive case 1: current node has 1 child on the left
         else if (n.left() != null) {
-            if (curr < topDate(n.left()))
+            if (curr < topDate(n.left())) {
                 curr = topDate(n.left());
+            }
         }
 
         // Recursive Case 2: current node has 1 child on the right
         else {
-            if (curr < topDate(n.right()))
+            if (curr < topDate(n.right())) {
                 curr = topDate(n.right());
+            }
         }
 
         return curr;
@@ -1268,17 +1307,18 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * Finds state in string of state names and state abbreviations
+     * gets the state name from a command
      * 
      * @param s
-     *            string of state names and state abbreviations
-     * @return
-     *         the state found
+     *            command line
+     * @param i
+     *            index within the command line
+     * @return the full state name
      */
     public static String getSearchState(String[] s, int i) {
         String state = "";
         for (int j = i + 1; j < s.length; j++) {
-            if (!(s[j].charAt(0) == '-')) {
+            if (s[j].charAt(0) != '-') {
                 state = state.concat(s[j] + " ");
             }
             else {
@@ -1404,6 +1444,13 @@ public class Covid19TrackingManager2 {
     }
 
 
+    /**
+     * verifies a date as an int
+     * 
+     * @param d
+     *            the date
+     * @return boolean indicating validity
+     */
     public static boolean validDateInt(int d) {
         try {
             LocalDate check = LocalDate.parse(dateToStringDash(d));
@@ -1438,10 +1485,13 @@ public class Covid19TrackingManager2 {
 
 
     /**
+     * checks if a grade is greater than another
      * 
      * @param a
+     *            first grade
      * @param b
-     * @return
+     *            second grade
+     * @return true if the first grade is greater than the second grade
      */
 
     public static boolean greaterGrade(String a, String b) {
@@ -1458,16 +1508,14 @@ public class Covid19TrackingManager2 {
 
 
     /**
-     * Method used to determine which record has a greater grade
+     * checks if a grade is greater than or equal to another
      * 
-     * @param one
-     *            first record to check
-     * @param two
-     *            second record to check
-     * @return
-     *         boolean value indicating if the first record's grade was greater
+     * @param a
+     *            first grade
+     * @param b
+     *            second grade
+     * @return true if the first grade is at least the second grade
      */
-
     public static boolean greaterGradeEqual(String a, String b) {
 
         if (a.equalsIgnoreCase(b)) {

@@ -13,8 +13,8 @@
 public class KeyVectorTest extends student.TestCase {
 
     private KeyVector<String, String, String> kv3;
-    KeyVector<String, String, String> nu;
-    KeyVector<String, String, String> kv2;
+    private KeyVector<String, String, String> nu;
+    private KeyVector<String, String, String> kv2;
 
     // compareTo
     private KeyVector<Integer, Integer, Integer> k1;
@@ -69,7 +69,7 @@ public class KeyVectorTest extends student.TestCase {
         kS2 = new KeyVector<String, String, String>("c", "b", "b");
         kS3 = new KeyVector<String, String, String>("a", "b", "b");
 
-        kS4 = new KeyVector<String, String, String>("b", "c", "c");
+        kS4 = new KeyVector<String, String, String>("b", "c", "b");
         kS5 = new KeyVector<String, String, String>("b", "a", "b");
 
         // null key 3

@@ -21,7 +21,6 @@ public class RecordTest extends student.TestCase {
     private Record r5;
     private Record r6;
     private Record noArg;
-    String s;
 
     /**
      * sets up the tests classes.
