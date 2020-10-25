@@ -24,8 +24,7 @@ public class BSTreeTest extends student.TestCase {
     private KeyVector<Integer, Integer, Integer> k11;
     private KeyVector<Integer, Integer, Integer> k22;
     private KeyVector<Integer, Integer, Integer> k33;
-    private BSTree<KeyVector<Integer, Integer, Integer>, Integer> t11;
-    private BSTree<KeyVector<Integer, Integer, Integer>, Integer> t22;
+
     private BSTree<KeyVector<Integer, Integer, Integer>, Integer> t33;
     private BSTree<KeyVector<Integer, Integer, Integer>, Integer> tI;
     private BSTree<KeyVector<Integer, Integer, Integer>, Integer> tR;
@@ -94,9 +93,6 @@ public class BSTreeTest extends student.TestCase {
         assertEquals(t.size(), 1);
         assertNull(t.remove(k2)); // null
         assertEquals(t.size(), 1);
-
-        // remove empty root
-        assertNull(tI.remove(k11));
 
         t33.insert(k11, 1); // left
         t33.insert(k33, 3); // right
