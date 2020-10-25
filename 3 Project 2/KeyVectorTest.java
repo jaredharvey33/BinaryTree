@@ -33,7 +33,7 @@ public class KeyVectorTest extends student.TestCase {
 
     public void setUp() {
         nu = new KeyVector<>();
-        kv2 = new KeyVector<String, String, String>("one", "two", null);
+        kv2 = new KeyVector<String, String, String>("one", "two");
         kv3 = new KeyVector<String, String, String>("one", "two", "three");
 
         // compareTo
@@ -65,7 +65,6 @@ public class KeyVectorTest extends student.TestCase {
         assertEquals(kv3.getKey1(), "one");
         assertEquals(kv3.getKey2(), "two");
         assertEquals(kv3.getKey3(), "three");
-
     }
 
 

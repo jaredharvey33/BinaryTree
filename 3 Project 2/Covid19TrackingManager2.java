@@ -1,11 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.text.NumberFormat;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Scanner;
 
 /**
@@ -57,13 +55,12 @@ public class Covid19TrackingManager2 {
 
         String[] stateArray = states.split("\r\n\r\n");
 // String fileName = args[0];
-        String fileName = "input2.txt";
+        String fileName = "input1.txt";
 
         Scanner scan = null;
         ArrayList<Record> curr = new ArrayList<Record>();
         BSTree<KeyVector<?, ?, ?>, Record> treeSD = new BSTree<>();
         BSTree<KeyVector<?, ?, ?>, Record> treeDS = new BSTree<>();
-        BSTree<KeyVector<?, ?, ?>, Record> treeGDS = new BSTree<>();
         BSTree<KeyVector<?, ?, ?>, Record> treeGSD = new BSTree<>();
 
         try {
@@ -91,8 +88,7 @@ public class Covid19TrackingManager2 {
                         load(fn, stateArray, curr);
                         treeSD = loadTree(curr, 1, stateArray);
                         treeDS = loadTree(curr, 2, stateArray);
-                        treeGDS = loadTree(curr, 3, stateArray);
-                        treeGSD = loadTree(curr, 4, stateArray);
+                        treeGSD = loadTree(curr, 3, stateArray);
 
                     }
                     catch (FileNotFoundException e) {
@@ -147,11 +143,17 @@ public class Covid19TrackingManager2 {
             else if (command.trim().equalsIgnoreCase("remove")) {
                 if (treeSD.size() == 0) {
                     System.out.println(
-                        "0 records with quality grade lower or equal to C have been removed");
+                        "0 records with quality grade lower or equal to "
+                            + splitLine[1] + " have been removed");
+                }
+                else if (!validGrade(splitLine[1])) {
+                    System.out.println(splitLine[1]
+                        + " is not a valid quality grade");
                 }
                 else {
                     ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> rm = remove(
-                        splitLine[1], treeGSD, treeSD, treeDS, stateArray);
+                        splitLine[1], treeGSD, treeSD, treeDS, curr,
+                        stateArray);
                     treeGSD = rm.get(0);
                     treeSD = rm.get(1);
                     treeDS = rm.get(2);
@@ -184,6 +186,7 @@ public class Covid19TrackingManager2 {
         BSTree<KeyVector<?, ?, ?>, Record> treeGSD,
         BSTree<KeyVector<?, ?, ?>, Record> treeSD,
         BSTree<KeyVector<?, ?, ?>, Record> treeDS,
+        ArrayList<Record> curr,
         String[] stateArray) {
         ArrayList<BSTree<KeyVector<?, ?, ?>, Record>> trees =
             new ArrayList<BSTree<KeyVector<?, ?, ?>, Record>>();
@@ -198,6 +201,7 @@ public class Covid19TrackingManager2 {
                 null));
             treeGSD.remove(new KeyVector<String, String, Integer>(currGrade,
                 state, date));
+            curr.remove(removed.get(i));
 
         }
         System.out.println(removed.size()
@@ -229,7 +233,7 @@ public class Covid19TrackingManager2 {
         if (n.left() != null) {
             r.addAll(removeGrade(grade, n.left()));
         }
-        if (!greaterGrade(currGrade, grade)) {
+        if (!greaterGrade(currGrade.toUpperCase(), grade.toUpperCase())) {
             r.add(n.element());
         }
         if (n.right() != null) {
@@ -263,7 +267,7 @@ public class Covid19TrackingManager2 {
 
                 if (!line.replaceAll("\\s+", "").equals(",,,,,,,,,") && !line
                     .trim().isEmpty()) {
-                    if (line.split(",", -1).length != 10) {
+                    if (line.split(",", 0).length != 10) {
                         System.out.println("Discard invalid record");
                     }
                     else {
@@ -290,6 +294,14 @@ public class Covid19TrackingManager2 {
                         else if (!validState(state, st)) {
                             System.out.println("State of " + state
                                 + " does not exist!");
+                        }
+                        else if (!validDateInt(date)) {
+                            System.out.println("The date " + date
+                                + " is not valid");
+                        }
+                        else if (!validGrade(dataGrade)) {
+                            System.out.println(dataGrade
+                                + " is not a valid quality grade");
                         }
                         else {
                             Record record = new Record(date, state, positive,
@@ -643,17 +655,6 @@ public class Covid19TrackingManager2 {
                 tree.insert(kv, curr);
             }
         }
-        else if (op == 3) {
-            for (int i = 0; i < c.size(); i++) {
-                Record curr = c.get(i);
-                String state = abConversion(curr.getState(), st);
-                String grade = curr.getDataQualityGrade();
-                int date = curr.getDate();
-                KeyVector<String, Integer, String> kv = new KeyVector<>(grade,
-                    date, state);
-                tree.insert(kv, curr);
-            }
-        }
         else {
             for (int i = 0; i < c.size(); i++) {
                 Record curr = c.get(i);
@@ -741,51 +742,6 @@ public class Covid19TrackingManager2 {
             dumpBSTHelp(tree, n.right(), op);
         }
     }
-
-    /**
-     * 
-     * @param line
-     *            search command
-     * @param curr
-     *            array of records
-     * @param stateArray
-     *            array of state names and abbreviations
-     * @return boolean indicating method return
-     */
-// public static boolean search(
-// String[] line,
-// BSTree<KeyVector<?, ?, ?>, Record> tree,
-// String[] stateArray) {
-// if (line.length == 1) {
-// int topDate = topDate(tree.getRoot());
-// int records = searchNone(topDate, tree.getRoot());
-// System.out.println(records + " records have been printed on date "
-// + dateToString(topDate));
-// }
-// else {
-// if (line[1].equalsIgnoreCase("-C")) {
-// searchC(Integer.parseInt(line[2]));
-// }
-// else {
-// String date = line.split(" ")[1];
-// if (!validDate(date)) {
-// System.out.println("Discard invalid command name");
-// }
-// else if (!containsDate(date, curr)) {
-// System.out.println("There are no records on " + date);
-// }
-//
-// else {
-// ArrayList<Record> stateSorted = sortByState(curr,
-// stateArray);
-// printTopDate(stateSorted, dateToInt(date));
-// }
-//
-// }
-//
-// }
-// return true;
-// }
 
 
     /**
@@ -1147,8 +1103,7 @@ public class Covid19TrackingManager2 {
                     topDate(DS.getRoot())));
             }
             else {
-                LocalDate first = LocalDate.parse(dateToStringDash(dateToInt(d
-                    .toString()))).minusDays(numDays - 1);
+                LocalDate first = d.minusDays(numDays - 1);
                 String firstD = dateToString(dateToIntDash(first.toString()));
                 ans = ans.concat(" from " + firstD + " to " + dateToString(
                     topDate(DS.getRoot())));
@@ -1202,6 +1157,12 @@ public class Covid19TrackingManager2 {
             range = dateInRange(dateToStringDash(curr.getDate()),
                 dateToStringDash(topD), numDays);
             date = curr.getDate();
+        }
+        else {
+            range = dateInRange(dateToStringDash(curr.getDate()),
+                dateToStringDash(topD), numDays);
+            date = curr.getDate();
+
         }
         StringBuilder builder = new StringBuilder();
 
@@ -1300,176 +1261,6 @@ public class Covid19TrackingManager2 {
         }
 
         return curr;
-    }
-
-
-    /**
-     * 
-     * @param r
-     *            array of records
-     * @param st
-     *            array of state names and abbreviations
-     */
-    public static void printSummary(ArrayList<Record> r, String[] st) {
-        ArrayList<Record> records = new ArrayList<>();
-        ArrayList<Record> sorted = sortByState(r, st);
-
-        int c = 0;
-        int d = 0;
-        int h = 0;
-        int totalC = 0;
-        int totalD = 0;
-        int totalH = 0;
-
-        int j = 0;
-        for (int i = 0; i < sorted.size(); i++) {
-            c = 0;
-            d = 0;
-            h = 0;
-            j = i;
-            String state = sorted.get(i).getState();
-            while (state.equalsIgnoreCase(sorted.get(j).getState())) {
-                c = c + sorted.get(j).getPositive();
-                d = d + sorted.get(j).getDeath();
-                h = h + sorted.get(j).getHospitalized();
-
-                if (j == sorted.size() - 1) {
-                    break;
-                }
-                j++;
-
-            }
-
-            Record curr = new Record();
-            if (j == sorted.size() - 1) {
-                if (sorted.get(j).getState().equalsIgnoreCase(sorted.get(j - 1)
-                    .getState())) {
-                    c = c + sorted.get(j).getPositive();
-                    d = d + sorted.get(j).getDeath();
-                    h = h + sorted.get(j).getHospitalized();
-                    totalC += c;
-                    totalH += h;
-                    totalD += d;
-                    curr = new Record();
-                    curr.setDeath(d);
-                    curr.setHospitalized(h);
-                    curr.setPositive(c);
-                    curr.setState(state);
-                    records.add(curr);
-
-                }
-                else {
-                    totalC += c;
-                    totalH += h;
-                    totalD += d;
-                    curr.setDeath(d);
-                    curr.setHospitalized(h);
-                    curr.setPositive(c);
-                    curr.setState(state);
-                    records.add(curr);
-
-                    c = sorted.get(j).getPositive();
-                    d = sorted.get(j).getDeath();
-                    h = sorted.get(j).getHospitalized();
-                    totalC += c;
-                    totalH += h;
-                    totalD += d;
-                    curr = new Record();
-                    curr.setDeath(d);
-                    curr.setHospitalized(h);
-                    curr.setPositive(c);
-                    curr.setState(sorted.get(j).getState());
-                    records.add(curr);
-                }
-                break;
-            }
-            totalC += c;
-            totalH += h;
-            totalD += d;
-            curr.setDeath(d);
-            curr.setHospitalized(h);
-            curr.setPositive(c);
-            curr.setState(state);
-            records.add(curr);
-            i = j - 1;
-
-        }
-
-        System.out.println("Data Summary for " + records.size() + " states:");
-        System.out.println(
-            "State   Total Case  Total Death   Total Hospitalized");
-        printSumArray(records);
-        System.out.println("Total Cases: " + totalC + "\n" + "Total Death: "
-            + totalD + "\n" + "Total Hospitalized: " + totalH);
-
-    }
-
-
-    /**
-     * Used to print the sum of record fields in printSummary method
-     * 
-     * @param r
-     *            record to print sum of fields for
-     */
-    public static void printSumArray(ArrayList<Record> r) {
-
-        for (int i = 0; i < r.size(); i++) {
-            Record rec = r.get(i);
-            System.out.println(rec.getState() + "\t" + rec.getPositive() + "\t"
-                + rec.getDeath() + "\t" + rec.getHospitalized());
-        }
-    }
-
-
-    /**
-     * Finds records with a given state
-     * 
-     * @param s
-     *            state to look for
-     * @param r
-     *            arrayList of records
-     * @param st
-     *            string of states and state abbreviations
-     * @param max
-     *            max value used to check if search is complete
-     */
-    public static void findState(
-        String s,
-        ArrayList<Record> r,
-        String[] st,
-        int max) {
-        ArrayList<String> strings = new ArrayList<String>();
-        ArrayList<Record> sorted = sortByDate(r);
-        NumberFormat nf = NumberFormat.getInstance();
-        int count = 0;
-        for (int i = 0; i < r.size(); i++) {
-            if ((sorted.get(i).getState().equalsIgnoreCase(s)) || (abConversion(
-                sorted.get(i).getState(), st).equalsIgnoreCase(s))) {
-                Record rec = sorted.get(i);
-                strings.add(dateToString(rec.getDate()) + "\t" + nf.format(rec
-                    .getPositive()) + "\t" + nf.format(rec.getNegative()) + "\t"
-                    + nf.format(rec.getHospitalized()) + "\t" + nf.format(rec
-                        .getOnVentilatorCurrently()) + "\t" + rec
-                            .getOnVentilatorCumulative() + "\t" + nf.format(rec
-                                .getRecovered()) + "\t" + rec
-                                    .getDataQualityGrade() + "\t" + nf.format(
-                                        rec.getDeath()));
-                count++;
-                if (count == max) {
-                    break;
-                }
-
-            }
-        }
-        System.out.println(count + " records are printed out for the state of "
-            + s);
-        System.out.println("date   positive    negative    hospitalized"
-            + "   onVentilatorCurrently    onVentilatorCumulative   reco"
-            + "vered   dataQualityGrade   death");
-        for (int j = 0; j < strings.size(); j++) {
-            System.out.println(strings.get(j));
-        }
-
     }
 
 
@@ -1597,25 +1388,27 @@ public class Covid19TrackingManager2 {
      *         boolean indicating if the date was valid
      */
     public static boolean validDate(String d) {
-
-        if (d.trim().length() != 10) {
+        if (d.length() != 10) {
             return false;
         }
-        else {
-            for (int i = 0; i < d.length(); i++) {
-                if (i == 2 || i == 5) { // check for slash at indices 2 and 5
-                    if (d.charAt(i) != '/') {
-                        return false;
-                    }
-                }
-
-                else if (!Character.isDigit(d.charAt(i))) { // check for digits
-                    // everywhere else
-                    return false;
-                }
-            }
+        try {
+            LocalDate check = LocalDate.parse(dateToStringDash(dateToInt(d)));
+            return check != null;
         }
-        return true;
+        catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+
+    public static boolean validDateInt(int d) {
+        try {
+            LocalDate check = LocalDate.parse(dateToStringDash(d));
+            return check != null;
+        }
+        catch (DateTimeParseException e) {
+            return false;
+        }
     }
 
 
@@ -1729,123 +1522,6 @@ public class Covid19TrackingManager2 {
             }
         }
         return changed;
-    }
-
-
-    /**
-     * Sorts an arrayList of records by date in ascending order
-     * 
-     * @param r
-     *            arrayList of records
-     * @return
-     *         The arrayList of records sorted by date
-     */
-
-    public static ArrayList<Record> sortByDate(ArrayList<Record> r) {
-        ArrayList<Record> sorted = new ArrayList<Record>(r);
-
-        for (int i = 1; i < r.size(); i++) {
-            Record rec = sorted.get(i);
-            int j = i - 1;
-            while ((j > -1) && ((sorted.get(j).compareToDate(rec)) == 1)) {
-                sorted.set(j + 1, sorted.get(j));
-                j--;
-            }
-
-            sorted.set(j + 1, rec);
-        }
-
-        return sorted;
-
-    }
-
-
-    /**
-     * Sorts an arrayList of records by state in ascending order
-     * 
-     * @param ar
-     *            arrayList of records
-     * @param s
-     *            string containing list of all states and state abbreviations
-     * @return
-     *         The arrayList of records sorted by state
-     */
-
-    public static ArrayList<Record> sortByState(
-        ArrayList<Record> ar,
-        String[] s) {
-        ArrayList<Record> arCopy = new ArrayList<Record>(ar);
-        for (int i = 0; i < arCopy.size(); i++) {
-            arCopy.get(i).setState(abConversion(arCopy.get(i).getState(), s));
-        }
-        Collections.sort(arCopy);
-        for (int i = 0; i < arCopy.size(); i++) {
-            arCopy.get(i).setState(stateConversion(arCopy.get(i).getState(),
-                s));
-        }
-        return arCopy;
-
-    }
-
-
-    /**
-     * Prints the records to a file
-     * 
-     * @param pw
-     *            printer writer used for writing records
-     * @param r
-     *            arrayList of records to print
-     */
-
-    public static void dump(PrintWriter pw, ArrayList<Record> r) {
-
-        pw.write("date,state,positive,negative,hospitalized,"
-            + "onVentilatorCurrently,onVentilatorCumulative,"
-            + "recovered,dataQualityGrade,death");
-
-        for (int i = 0; i < r.size(); i++) {
-            pw.write(r.get(i).toString());
-        }
-    }
-
-
-    /**
-     * Prints the records in ascending order with most recent date at top
-     * 
-     * @param r
-     *            arrayList of records
-     * @param date
-     *            top date value
-     */
-
-    public static void printTopDate(ArrayList<Record> r, int date) {
-        ArrayList<String> strings = new ArrayList<String>();
-        NumberFormat nf = NumberFormat.getInstance();
-        int count = 0;
-        for (int i = 0; i < r.size(); i++) {
-            if (r.get(i).getDate() == date) {
-                Record rec = r.get(i);
-                strings.add(rec.getState() + "\t" + nf.format(rec.getPositive())
-                    + "\t" + nf.format(rec.getNegative()) + "\t" + nf.format(rec
-                        .getHospitalized()) + "\t" + nf.format(rec
-                            .getOnVentilatorCurrently()) + "\t" + nf.format(rec
-                                .getOnVentilatorCumulative()) + "\t" + nf
-                                    .format(rec.getRecovered()) + "\t" + rec
-                                        .getDataQualityGrade() + "\t" + nf
-                                            .format(rec.getDeath()));
-                count++;
-
-            }
-        }
-        System.out.println("There are " + count + " records on " + dateToString(
-            date));
-        System.out.println("state   positive    negative    hospitalized"
-            + "   onVentilatorCurrently    onVentilatorCumulative   reco"
-            + "vered   dataQualityGrade   death");
-        for (int j = 0; j < strings.size(); j++) {
-            System.out.println(strings.get(j));
-        }
-
     }
 
 

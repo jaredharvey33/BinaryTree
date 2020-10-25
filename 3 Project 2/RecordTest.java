@@ -1,17 +1,17 @@
 import java.util.ArrayList;
 
-//Virginia Tech Honor Code Pledge:
+// Virginia Tech Honor Code Pledge:
 //
-//As a Hokie, I will conduct myself with honor and integrity at all times.
-//I will not lie, cheat, or steal, nor will I accept the actions of those who
-//do.
-//-- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+// As a Hokie, I will conduct myself with honor and integrity at all times.
+// I will not lie, cheat, or steal, nor will I accept the actions of those who
+// do.
+// -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
 
 /**
-* @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
-* @version 2020.10.20
-*
-*/
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+ * @version 2020.10.20
+ *
+ */
 public class RecordTest extends student.TestCase {
 
     private Record r1;
@@ -20,6 +20,7 @@ public class RecordTest extends student.TestCase {
     private Record r4;
     private Record r5;
     private Record r6;
+    private Record noArg;
     String s;
 
     /**
@@ -27,6 +28,7 @@ public class RecordTest extends student.TestCase {
      */
 
     public void setUp() {
+        noArg = new Record();
         r1 = new Record(1, "VA", 1, 1, 1, 1, 1, 1, "A", 1);
         r2 = new Record(1, "VA", 1, 1, 1, 1, 1, 1, "A", 1);
         r3 = new Record(2, "VA", 1, 1, 1, 1, 1, 1, "A", 1);
@@ -34,7 +36,7 @@ public class RecordTest extends student.TestCase {
         r5 = new Record(1, "MD", -1, -1, -1, -1, -1, -1, "A", -1);
 
         r6 = new Record(20200722, "VA", 1, 1, 1, 1, 1, 1, "A", 1);
-       
+
     }
 
 
@@ -78,7 +80,8 @@ public class RecordTest extends student.TestCase {
      * tests the toStringTab method
      */
     public void testToStringTab() {
-        assertEquals(r6.toStringTab(),"VA\t07/22/2020\t1\t1\t1\t1\t1\t1\tA\t1" );
+        assertEquals(r6.toStringTab(),
+            "VA\t07/22/2020\t1\t1\t1\t1\t1\t1\tA\t1");
 
     }
 
@@ -123,6 +126,7 @@ public class RecordTest extends student.TestCase {
      */
     public void testGetState() {
         assertEquals(r1.getState(), "VA");
+        assertNull(noArg.getState());
 
     }
 

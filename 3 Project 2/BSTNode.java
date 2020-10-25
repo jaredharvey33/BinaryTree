@@ -89,7 +89,7 @@ public class BSTNode<K, E> {
     /**
      * Gets the element of a node
      * 
-     * @return
+     * @return the element
      */
     public E element() {
         return element;

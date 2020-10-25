@@ -16,8 +16,8 @@
  *            The third key
  */
 public class KeyVector<K1 extends Comparable<K1>,
-K2 extends Comparable<K2>, K3 extends Comparable<K3>>
-    implements Comparable<KeyVector<?, ?, ?>> {
+    K2 extends Comparable<K2>, K3 extends Comparable<K3>>
+        implements Comparable<KeyVector<?, ?, ?>> {
 
     private K1 key1;
     private K2 key2;
@@ -206,6 +206,10 @@ K2 extends Comparable<K2>, K3 extends Comparable<K3>>
 
     /**
      * CompareTo method for KeyVector
+     * 
+     * @param kv
+     *            other key
+     * @return int indicating comparison
      */
     @SuppressWarnings("unchecked")
     public int compareTo(KeyVector<?, ?, ?> kv) {

@@ -201,12 +201,15 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      * @return the inserted node
      */
     private BSTNode<K, E> insertIntDescHelp(BSTNode<K, E> rt, K k, E e) {
-        if (rt == null)
+        if (rt == null) {
             return new BSTNode<K, E>(k, e);
-        if (rt.key().compareToIntDesc(k) < 0)
+        }
+        if (rt.key().compareToIntDesc(k) < 0) {
             rt.setLeft(insertIntDescHelp(rt.left(), k, e));
-        else
+        }
+        else {
             rt.setRight(insertIntDescHelp(rt.right(), k, e));
+        }
         return rt;
     }
 
@@ -219,8 +222,9 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      * @return the root node
      */
     private BSTNode<K, E> deletemin(BSTNode<K, E> rt) {
-        if (rt.left() == null)
+        if (rt.left() == null) {
             return rt.right();
+        }
         else {
             rt.setLeft(deletemin(rt.left()));
             return rt;
@@ -234,22 +238,31 @@ public class BSTree<K extends KeyVector<?, ?, ?>, E> {
      * @return The tree with the node removed
      */
     private BSTNode<K, E> removehelp(BSTNode<K, E> rt, K k) {
-        if (rt == null)
+        if (rt == null) {
             return null;
-        if (rt.key().compareTo(k) < 0)
+        }
+        if (rt.key().compareTo(k) < 0) {
             rt.setLeft(removehelp(rt.left(), k));
-        else if (rt.key().compareTo(k) > 0)
+        }
+        else if (rt.key().compareTo(k) > 0) {
             rt.setRight(removehelp(rt.right(), k));
+        }
         else { // Found it, remove it
-            if (rt.left() == null)
+            if (rt.left() == null) {
                 return rt.right();
-            else if (rt.right() == null)
+            }
+            else if (rt.right() == null) {
                 return rt.left();
+            }
             else { // Two children
                 BSTNode<K, E> temp = getmin(rt.right());
-                rt.setElement(temp.element());
+                {
+                    rt.setElement(temp.element());
+                }
                 rt.setKey(temp.key());
-                rt.setRight(deletemin(rt.right()));
+                {
+                    rt.setRight(deletemin(rt.right()));
+                }
             }
         }
         return rt;
