@@ -48,6 +48,7 @@ public class KeyVectorTest extends student.TestCase {
 
         // compareTo
         k1 = new KeyVector<Integer, Integer, Integer>(1, 1, 1);
+        new KeyVector<Integer, Integer, Integer>(1, 1, 1);
 
         k2 = new KeyVector<Integer, Integer, Integer>(2, 1, 1);
         k3 = new KeyVector<Integer, Integer, Integer>(0, 1, 1);
@@ -149,6 +150,8 @@ public class KeyVectorTest extends student.TestCase {
         assertEquals(kS1.compareToIntDesc(kS6), 1);
         
         
+        assertEquals(kS1.compareToIntDesc(kS7), -1);
+        assertEquals(kS1.compareToIntDesc(kS6), s1);
     }
 
 }
