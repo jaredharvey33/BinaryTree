@@ -40,9 +40,23 @@ class Heap<K extends Comparable<K>> {
     }
 
 
+    public K check() {
+        if (n == 0) {
+            return null;
+        }
+        return heap[0];
+    }
+
+
     // Return current size of the heap
     public int heapsize() {
         return n;
+    }
+
+
+    // Return current size of the heap
+    public void sizeBack(int back) {
+        n = back;
     }
 
 
@@ -124,6 +138,5 @@ class Heap<K extends Comparable<K>> {
         siftdown(0); // Put new heap root val in correct place
         return heap[n];
     }
-
 
 }

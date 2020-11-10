@@ -25,8 +25,8 @@ public class Record implements Comparable<Record> {
     /**
      * @return the id
      */
-    public int getId() {
-        return ByteBuffer.wrap(id).getInt();
+    public byte[] getId() {
+        return id;
 
     }
 
@@ -43,8 +43,8 @@ public class Record implements Comparable<Record> {
     /**
      * @return the key
      */
-    public float getKey() {
-        return ByteBuffer.wrap(key).getFloat();
+    public byte[] getKey() {
+        return key;
     }
 
 
@@ -63,11 +63,11 @@ public class Record implements Comparable<Record> {
      */
     @Override
     public int compareTo(Record o) {
-        if (this.getKey() > o.getKey()) {
-            return -1;
-        }
-        else if (this.getKey() < o.getKey()) {
+        if (ByteBuffer.wrap(this.key).getFloat() > ByteBuffer.wrap(o.key).getFloat() ) {
             return 1;
+        }
+        else if (ByteBuffer.wrap(this.key).getFloat() < ByteBuffer.wrap(o.key).getFloat()) {
+            return -1;
         }
         else {
             return 0;
