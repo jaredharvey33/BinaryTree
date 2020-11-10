@@ -13,18 +13,12 @@ import java.nio.ByteBuffer;
  *
  */
 public class Record implements Comparable<Record> {
-    private int id;
-    private float key;
+    private byte[] id;
+    private byte[] key;
 
-    public Record() {
-        id = 0;
-        key = 0;
-    }
-
-
-    public Record(ByteBuffer bb) {
-        id = bb.getInt();
-        key = bb.getFloat();
+    public Record(byte[] i, byte[] k) {
+        id = i;
+        key = k;
     }
 
 
@@ -32,7 +26,8 @@ public class Record implements Comparable<Record> {
      * @return the id
      */
     public int getId() {
-        return id;
+        return ByteBuffer.wrap(id).getInt();
+
     }
 
 
@@ -40,7 +35,7 @@ public class Record implements Comparable<Record> {
      * @param id
      *            the id to set
      */
-    public void setId(int id) {
+    public void setId(byte[] id) {
         this.id = id;
     }
 
@@ -49,7 +44,7 @@ public class Record implements Comparable<Record> {
      * @return the key
      */
     public float getKey() {
-        return key;
+        return ByteBuffer.wrap(key).getFloat();
     }
 
 
@@ -57,7 +52,7 @@ public class Record implements Comparable<Record> {
      * @param key
      *            the key to set
      */
-    public void setKey(float key) {
+    public void setKey(byte[] key) {
         this.key = key;
     }
 
@@ -68,10 +63,10 @@ public class Record implements Comparable<Record> {
      */
     @Override
     public int compareTo(Record o) {
-        if (key > o.getKey()) {
+        if (this.getKey() > o.getKey()) {
             return -1;
         }
-        else if (key < o.getKey()) {
+        else if (this.getKey() < o.getKey()) {
             return 1;
         }
         else {
