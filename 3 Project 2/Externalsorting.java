@@ -59,14 +59,14 @@ public class Externalsorting {
         Record[] heapArray = new Record[B16];
         Heap<Record> heap = new Heap<>(heapArray, 0, B16);
         int fullBlocks = (int)raf.length() / BLOCK;
-     
+        int offSet = 0;
 
         fillHeap(raf, heap, ib, 16);
          
         
         for (int i = 0; i < fullBlocks - 16; i++) { // looping through 1 block
             outBuffer = new byte[BLOCK];                                       // at time
-            int offSet = 0;
+            
            
            int check = raf.read(ib, 0, BLOCK-1); // read in block
            if(check != -1) {
