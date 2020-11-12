@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 // Virginia Tech Honor Code Pledge:
@@ -30,14 +31,15 @@ public class Externalsorting {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        String recordFile = "Test2Block.bin";
+        // String recordFile = "Test2Block.bin";
+        String recordFile = "Sampledata__32blocks.bin";
         String outputFile = "test.bin";
 
         byte[] inBuffer = new byte[BLOCK];
         byte[] outBuffer = new byte[BLOCK];
 
         RandomAccessFile raf = new RandomAccessFile(recordFile, "r");
-        
+
         if (raf.length() <= B16) {
             replaceOnly(raf, outBuffer, outputFile);
         }
@@ -46,7 +48,6 @@ public class Externalsorting {
         }
         byte[] b = new byte[BLOCK];
         raf.read(b, 0, BLOCK);
-
     }
 
 
@@ -55,96 +56,180 @@ public class Externalsorting {
         byte[] outBuffer,
         String fileName)
         throws IOException {
+        ArrayList<RunCount> runCounts = new ArrayList<>();
+        int runCount = 0;
+        int runTotal = 0;
+        int newLine = 0;
         byte[] ib = new byte[BLOCK];
         Record[] heapArray = new Record[B16];
-        Heap<Record> heap = new Heap<>(heapArray, 0, B16);
+        Heap<Record> heap = new Heap<>(heapArray, 0, B16 / 8);
         int fullBlocks = (int)raf.length() / BLOCK;
         int offSet = 0;
 
         fillHeap(raf, heap, ib, 16);
-         
-        
+
         for (int i = 0; i < fullBlocks - 16; i++) { // looping through 1 block
-            outBuffer = new byte[BLOCK];                                       // at time
-            
-           
-           int check = raf.read(ib, 0, BLOCK-1); // read in block
-           if(check != -1) {
-               
-            for (int j = 0; j < BLOCK; j += 8) {// looping records in block
-                Record r;
-               
-                if (checkEmpty(outBuffer)) {
-                   
+                                                    // at a time
+            // fileWrite(outBuffer, fileName);
+            // outBuffer = new byte[BLOCK];
+            int check = raf.read(ib, 0, BLOCK); // read in block
+            if (check != -1) {
+
+                for (int j = 0; j < BLOCK; j += 8) {// looping records in block
+                    Record r;
+// if (checkEmpty(outBuffer)) {
+//
+// r = heap.removeMin();
+// offSet = insertOut(r, outBuffer, offSet);
+//
+// Record curr = getRecord(ib, i);
+// heap.insert(curr);
+//
+// }
+// else {
+// r = getRecord(outBuffer, offSet - 8);
+// }
                     r = heap.removeMin();
                     offSet = insertOut(r, outBuffer, offSet);
+                    runCount++;
 
-                    Record curr = getRecord(ib, i);
-                    heap.insert(curr);
+                    Record curr = getRecord(ib, j);
 
-                }
-                else {
-                    r = getRecord(outBuffer, offSet - 8);
-                }
+                    // Record topHeap = heap.check();
 
-                Record topHeap = heap.check();
+                    if (curr.compareTo(r) > 0) {
+                        heap.insert(curr);
+                    }
+                    else {
+                        heap.insert(curr);
+                        heap.removeMin();
 
-                if (topHeap.compareTo(r) > 0) {
-                    offSet = insertOut(topHeap, outBuffer, offSet);
-                }
-                else {
-                    heap.removeMin();
-                }
-                if (offSet == 1024) {
-                    fileWrite(outBuffer, fileName);
-                    offSet = 0;
-                }
+                        // check if all records are invisible
+                        if (heap.heapsize() == 0) {
+                            heap.sizeBack(B16 / 8);
+                            heap.buildheap();
+                            runTotal += runCount;
+                            RunCount rc = new RunCount(runCount, runTotal);
+                            runCounts.add(rc);
+                            runCount = 0;
+                        }
 
-            } // inner for
-            
-           }//check 
-           else {
-           for (int j = 0; j < raf.length() - fullBlocks * BLOCK; j += 8) {// looping records in block
-               Record r;
-               if (checkEmpty(outBuffer)) {
+                    }
+// if (offSet == 1024) {
+// fileWrite(outBuffer, fileName);
+// offSet = 0;
+// outBuffer = new byte[BLOCK];
+//
+// }
 
-                   r = heap.removeMin();
-                   offSet = insertOut(r, outBuffer, offSet);
+                } // inner for
 
-                   Record curr = getRecord(ib, i);
-                   heap.insert(curr);
+            } // check
+            else {
+                for (int j = 0; j < raf.length() - fullBlocks * BLOCK; j += 8) {// looping
+                                                                                // records
+                                                                                // in
+                                                                                // block
+                    Record r;
 
-               }
-               else {
-                   r = getRecord(outBuffer, offSet - 8);
-               }
+// if (checkEmpty(outBuffer)) {
+//
+// r = heap.removeMin();
+// offSet = insertOut(r, outBuffer, offSet);
+//
+// Record curr = getRecord(ib, i);
+// heap.insert(curr);
+//
+// }
+// else {
+// r = getRecord(outBuffer, offSet - 8);
+// }
+//
+// Record topHeap = heap.check();
+//
+// if (topHeap.compareTo(r) > 0) {
+// offSet = insertOut(topHeap, outBuffer, offSet);
+// }
+// else {
+// heap.removeMin();
+// }
 
-               Record topHeap = heap.check();
+                    r = heap.removeMin();
+                    offSet = insertOut(r, outBuffer, offSet);
+                    runCount++;
 
-               if (topHeap.compareTo(r) > 0) {
-                   offSet = insertOut(topHeap, outBuffer, offSet);
-               }
-               else {
-                   heap.removeMin();
-               }
-            
+                    Record curr = getRecord(ib, j);
 
-           } // check for
-           
-           fileWrite(outBuffer, fileName);
-           
-           }//else
-           
+                    if (curr.compareTo(r) > 0) {
+                        heap.insert(curr);
+                    }
+                    else {
+                        heap.insert(curr);
+                        heap.removeMin();
+
+                        // check if all records are invisible
+                        if (heap.heapsize() == 0) {
+                            heap.sizeBack(B16 / 8);
+                            heap.buildheap();
+                            runTotal += runCount;
+                            RunCount rc = new RunCount(runCount, runTotal);
+                            runCounts.add(rc);
+                            runCount = 0;
+                        }
+                    }
+
+                } // check for
+
+                // fileWrite(outBuffer, fileName);
+
+            } // else
+
+            fileWrite(outBuffer, fileName);
+            offSet = 0;
+            newLine++;
+            if (newLine % 4 == 0) {
+                System.out.println();
+            }
+            else if (heap.heapsize() != 0) {
+                System.out.print(", ");
+            }
+            outBuffer = new byte[BLOCK];
 
         } // for
+        heap.sizeBack(B16 / 8);
+        heap.buildheap();
+        runTotal += runCount;
+        RunCount rc = new RunCount(runCount, runTotal);
+        runCounts.add(rc);
+        insertAll(heap, outBuffer, fileName);
+    }
 
-        raf.read(ib,0,BLOCK);
-        
-        if (heap.heapsize() == 0) {
-            heap.sizeBack(1024);
-            heap.buildheap();
+
+    /**
+     * @param heap
+     * @param outBuffer
+     * @throws IOException
+     */
+    public static void insertAll(Heap<Record> heap, byte[] outBuffer, String fn)
+        throws IOException {
+
+        int newLine = 0;
+        for (int i = 0; i < 16; i++) {
+
+            for (int j = 0; j < BLOCK; j += 8) {
+                Record r = heap.removeMin();
+                insertOut(r, outBuffer, j);
+            }
+            fileWrite(outBuffer, fn);
+            newLine++;
+            if (newLine % 4 == 0) {
+                System.out.println();
+            }
+            else if (heap.heapsize() != 0) {
+                System.out.print(", ");
+            }
+            outBuffer = new byte[BLOCK];
         }
-
     }
 
 
@@ -171,8 +256,6 @@ public class Externalsorting {
             out[offSet + k] = key[k];
         }
         offSet = offSet + 4;
-        System.out.println(ByteBuffer.wrap(id).getInt() + " " + ByteBuffer.wrap(
-            key).getFloat());
 
         return offSet;
 
@@ -199,26 +282,38 @@ public class Externalsorting {
         // blocks
         fillHeap(raf, heap, ib, fullBlocks);
 
-        for (int i = 0; i < heap.heapsize(); i++) {
+        int newLine = 0;
+        while (heap.heapsize() != 0) {
 
             Record r = heap.removeMin();
             offSet = insertOut(r, outBuffer, offSet);
 
-            if (offSet == 1024) {
+            if (offSet == BLOCK) {
                 fileWrite(outBuffer, fileName);
                 offSet = 0;
+                newLine++;
+                if (newLine % 4 == 0) {
+                    System.out.println();
+                }
+                else if (heap.heapsize() != 0) {
+                    System.out.print(", ");
+                }
             }
 
-        } // for
-          // output the data
+        } // while
 
     }
 
 
     public static void fileWrite(byte[] out, String fName) throws IOException {
+        byte[] id = getRecord(out, 0).getId();
+        byte[] key = getRecord(out, 0).getKey();
+        System.out.print(ByteBuffer.wrap(id).getInt() + " " + ByteBuffer.wrap(
+            key).getFloat());
         DataOutputStream f = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(fName)));
         f.write(out);
+        f.close();
     }
 
 
@@ -239,7 +334,6 @@ public class Externalsorting {
         // load remaining records
         // long remaining = raf.length() - fullB * BLOCK;
         // loadBytes(ib, heap, (int)remaining);
-
     }
 
 
@@ -251,7 +345,6 @@ public class Externalsorting {
         for (int i = 0; i < bytes; i += 8) {
             heap.insert(getRecord(ib, i));
         }
-
     }
 
 

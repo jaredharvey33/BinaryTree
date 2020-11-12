@@ -15,10 +15,35 @@ import java.nio.ByteBuffer;
 public class Record implements Comparable<Record> {
     private byte[] id;
     private byte[] key;
+    private int flag;
 
     public Record(byte[] i, byte[] k) {
         id = i;
         key = k;
+    }
+
+
+    public Record(byte[] i, byte[] k, int f) {
+        id = i;
+        key = k;
+        flag = f;
+    }
+
+
+    /**
+     * @return the flag
+     */
+    public int getFlag() {
+        return flag;
+    }
+
+
+    /**
+     * @param flag
+     *            the flag to set
+     */
+    public void setFlag(int flag) {
+        this.flag = flag;
     }
 
 
@@ -63,10 +88,12 @@ public class Record implements Comparable<Record> {
      */
     @Override
     public int compareTo(Record o) {
-        if (ByteBuffer.wrap(this.key).getFloat() > ByteBuffer.wrap(o.key).getFloat() ) {
+        if (ByteBuffer.wrap(this.key).getFloat() > ByteBuffer.wrap(o.key)
+            .getFloat()) {
             return 1;
         }
-        else if (ByteBuffer.wrap(this.key).getFloat() < ByteBuffer.wrap(o.key).getFloat()) {
+        else if (ByteBuffer.wrap(this.key).getFloat() < ByteBuffer.wrap(o.key)
+            .getFloat()) {
             return -1;
         }
         else {
