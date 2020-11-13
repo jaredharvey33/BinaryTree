@@ -30,6 +30,16 @@ public class Record implements Comparable<Record> {
     }
 
 
+    public int getInt() {
+        return ByteBuffer.wrap(id).getInt();
+    }
+
+
+    public float getFloat() {
+        return ByteBuffer.wrap(key).getFloat();
+    }
+
+
     /**
      * @return the flag
      */

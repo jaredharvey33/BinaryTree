@@ -25,6 +25,9 @@ public class Externalsorting {
 
     public static final int BLOCK = 1024 * 8;
     public static final int B16 = 1024 * 8 * 16;
+    public static final String recordFile = "Sampledata__32blocks.bin";
+    public static final String outputFile = "test.bin";
+    public static final String mergeFile = "merge.bin";
 
     /**
      * @param args
@@ -32,34 +35,32 @@ public class Externalsorting {
      */
     public static void main(String[] args) throws IOException {
         // String recordFile = "Test2Block.bin";
-        String recordFile = "Sampledata__32blocks.bin";
-        String outputFile = "test.bin";
+        DataOutputStream f = new DataOutputStream(new BufferedOutputStream(
+            new FileOutputStream(outputFile)));
 
-        byte[] inBuffer = new byte[BLOCK];
         byte[] outBuffer = new byte[BLOCK];
 
         RandomAccessFile raf = new RandomAccessFile(recordFile, "r");
 
         if (raf.length() <= B16) {
-            replaceOnly(raf, outBuffer, outputFile);
+            replaceOnly(raf, outBuffer, f);
         }
         else {
-            replaceMerge(raf, outBuffer, outputFile);
+            replaceMerge(raf, outBuffer, f);
         }
-        byte[] b = new byte[BLOCK];
-        raf.read(b, 0, BLOCK);
+        f.close();
+
     }
 
 
     public static void replaceMerge(
         RandomAccessFile raf,
         byte[] outBuffer,
-        String fileName)
+        DataOutputStream f)
         throws IOException {
         ArrayList<RunCount> runCounts = new ArrayList<>();
         int runCount = 0;
         int runTotal = 0;
-        int newLine = 0;
         byte[] ib = new byte[BLOCK];
         Record[] heapArray = new Record[B16];
         Heap<Record> heap = new Heap<>(heapArray, 0, B16 / 8);
@@ -70,25 +71,12 @@ public class Externalsorting {
 
         for (int i = 0; i < fullBlocks - 16; i++) { // looping through 1 block
                                                     // at a time
-            // fileWrite(outBuffer, fileName);
-            // outBuffer = new byte[BLOCK];
+
             int check = raf.read(ib, 0, BLOCK); // read in block
             if (check != -1) {
 
                 for (int j = 0; j < BLOCK; j += 8) {// looping records in block
                     Record r;
-// if (checkEmpty(outBuffer)) {
-//
-// r = heap.removeMin();
-// offSet = insertOut(r, outBuffer, offSet);
-//
-// Record curr = getRecord(ib, i);
-// heap.insert(curr);
-//
-// }
-// else {
-// r = getRecord(outBuffer, offSet - 8);
-// }
                     r = heap.removeMin();
                     offSet = insertOut(r, outBuffer, offSet);
                     runCount++;
@@ -108,19 +96,13 @@ public class Externalsorting {
                         if (heap.heapsize() == 0) {
                             heap.sizeBack(B16 / 8);
                             heap.buildheap();
-                            runTotal += runCount;
                             RunCount rc = new RunCount(runCount, runTotal);
+                            runTotal += runCount;
                             runCounts.add(rc);
                             runCount = 0;
                         }
 
                     }
-// if (offSet == 1024) {
-// fileWrite(outBuffer, fileName);
-// offSet = 0;
-// outBuffer = new byte[BLOCK];
-//
-// }
 
                 } // inner for
 
@@ -131,28 +113,6 @@ public class Externalsorting {
                                                                                 // in
                                                                                 // block
                     Record r;
-
-// if (checkEmpty(outBuffer)) {
-//
-// r = heap.removeMin();
-// offSet = insertOut(r, outBuffer, offSet);
-//
-// Record curr = getRecord(ib, i);
-// heap.insert(curr);
-//
-// }
-// else {
-// r = getRecord(outBuffer, offSet - 8);
-// }
-//
-// Record topHeap = heap.check();
-//
-// if (topHeap.compareTo(r) > 0) {
-// offSet = insertOut(topHeap, outBuffer, offSet);
-// }
-// else {
-// heap.removeMin();
-// }
 
                     r = heap.removeMin();
                     offSet = insertOut(r, outBuffer, offSet);
@@ -184,24 +144,29 @@ public class Externalsorting {
 
             } // else
 
-            fileWrite(outBuffer, fileName);
+            fileWrite(outBuffer, f);
             offSet = 0;
-            newLine++;
-            if (newLine % 4 == 0) {
-                System.out.println();
-            }
-            else if (heap.heapsize() != 0) {
-                System.out.print(", ");
-            }
             outBuffer = new byte[BLOCK];
 
         } // for
+
+        RunCount rc = new RunCount(runCount, runTotal);
+        runTotal += runCount;
+        runCounts.add(rc);
         heap.sizeBack(B16 / 8);
         heap.buildheap();
-        runTotal += runCount;
-        RunCount rc = new RunCount(runCount, runTotal);
-        runCounts.add(rc);
-        insertAll(heap, outBuffer, fileName);
+        runCount = B16 / 8;
+        RunCount rc1 = new RunCount(runCount, runTotal);
+        runCounts.add(rc1);
+
+        insertAll(heap, outBuffer, f);
+
+        DataOutputStream fMerge = new DataOutputStream(new BufferedOutputStream(
+            new FileOutputStream(mergeFile)));
+        RandomAccessFile rafRun = new RandomAccessFile(outputFile, "r");
+        MergeSort ms = new MergeSort(heap, runCounts);
+        ms.loadHeap(0, runCounts.size(), rafRun);
+        ms.loadMergeFile(fMerge, rafRun);
     }
 
 
@@ -210,7 +175,10 @@ public class Externalsorting {
      * @param outBuffer
      * @throws IOException
      */
-    public static void insertAll(Heap<Record> heap, byte[] outBuffer, String fn)
+    public static void insertAll(
+        Heap<Record> heap,
+        byte[] outBuffer,
+        DataOutputStream f)
         throws IOException {
 
         int newLine = 0;
@@ -220,7 +188,7 @@ public class Externalsorting {
                 Record r = heap.removeMin();
                 insertOut(r, outBuffer, j);
             }
-            fileWrite(outBuffer, fn);
+            fileWrite(outBuffer, f);
             newLine++;
             if (newLine % 4 == 0) {
                 System.out.println();
@@ -269,7 +237,7 @@ public class Externalsorting {
     public static void replaceOnly(
         RandomAccessFile raf,
         byte[] outBuffer,
-        String fileName)
+        DataOutputStream f)
         throws IOException {
         byte[] ib = new byte[BLOCK];
         Record[] heapArray = new Record[B16];
@@ -289,7 +257,11 @@ public class Externalsorting {
             offSet = insertOut(r, outBuffer, offSet);
 
             if (offSet == BLOCK) {
-                fileWrite(outBuffer, fileName);
+                byte[] id = getRecord(outBuffer, 0).getId();
+                byte[] key = getRecord(outBuffer, 0).getKey();
+                System.out.print(ByteBuffer.wrap(id).getInt() + " " + ByteBuffer
+                    .wrap(key).getFloat());
+                fileWrite(outBuffer, f);
                 offSet = 0;
                 newLine++;
                 if (newLine % 4 == 0) {
@@ -305,15 +277,9 @@ public class Externalsorting {
     }
 
 
-    public static void fileWrite(byte[] out, String fName) throws IOException {
-        byte[] id = getRecord(out, 0).getId();
-        byte[] key = getRecord(out, 0).getKey();
-        System.out.print(ByteBuffer.wrap(id).getInt() + " " + ByteBuffer.wrap(
-            key).getFloat());
-        DataOutputStream f = new DataOutputStream(new BufferedOutputStream(
-            new FileOutputStream(fName)));
+    public static void fileWrite(byte[] out, DataOutputStream f)
+        throws IOException {
         f.write(out);
-        f.close();
     }
 
 
