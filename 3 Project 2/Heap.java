@@ -1,15 +1,15 @@
-
 // Virginia Tech Honor Code Pledge:
 //
 // As a Hokie, I will conduct myself with honor and integrity at all times.
 // I will not lie, cheat, or steal, nor will I accept the actions of those who
 // do.
-// -- Ren Robinson (rarobin98)
-
-/**
- * @author Ren Robinson (rarobin98)
- * @version 2020.10.28
- *
+// -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+/*
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+ * 
+ * @version 2020.11.09
+ * 
+ * The heap class used to store the records
  */
 class Heap<K extends Comparable<K>> {
     private K[] heap; // Pointer to the heap array
@@ -25,21 +25,7 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // Function to print the contents of the heap
-    public String toString() {
-        String s = "";
-        for (int i = 0; i < (n / 2); i++) {
-            s = s.concat("Parent : " + heap[i] + "\n");
-            if (leftchild(i) < n)
-                s = s.concat(" Left : " + heap[leftchild(i)] + "\n");
-            if (rightchild(i) < n)
-                s = s.concat(" Right :" + heap[rightchild(i)] + "\n");
-            s = s.concat("\n");
-        }
-        return s;
-    }
-
-
+    // returns the current minimum value in the heap
     public K check() {
         if (n == 0) {
             return null;
@@ -54,7 +40,7 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // Return current size of the heap
+    // Resize the heap
     public void sizeBack(int back) {
         n = back;
     }
@@ -84,10 +70,10 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    public void insert(K key) {
+    // Inserts element into heap
+    public boolean insert(K key) {
         if (n >= size) {
-            System.out.println("Heap is full");
-            return;
+            return false;
         }
         heap[n] = key;
         int curr = n;
@@ -97,6 +83,7 @@ class Heap<K extends Comparable<K>> {
             curr = parent(curr);
         }
         n++;
+        return true;
     }
 
 
@@ -108,7 +95,7 @@ class Heap<K extends Comparable<K>> {
 
 
     // Put element in its correct place
-    public void siftdown(int pos) {
+    private void siftdown(int pos) {
         if ((pos < 0) || (pos >= n))
             return; // Illegal position
         while (!isLeaf(pos)) {
@@ -123,6 +110,7 @@ class Heap<K extends Comparable<K>> {
     }
 
 
+    // swaps two elements in the heap
     public void swap(int a, int b) {
         K temp = heap[a];
         heap[a] = heap[b];
@@ -137,6 +125,12 @@ class Heap<K extends Comparable<K>> {
         swap(0, --n); // Swap maximum with last value
         siftdown(0); // Put new heap root val in correct place
         return heap[n];
+    }
+
+
+    // Returns the current heap
+    public K[] getHeap() {
+        return heap;
     }
 
 }
