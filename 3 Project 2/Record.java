@@ -18,14 +18,30 @@ public class Record implements Comparable<Record> {
     private byte[] key;
     private int flag;
 
-    // constructor for record
+    /**
+     * Constructor for a record
+     * 
+     * @param i
+     *            the byte array representing the id
+     * @param k
+     *            the byte array representing the key
+     */
     public Record(byte[] i, byte[] k) {
         id = i;
         key = k;
     }
 
 
-    // constructor for record with a flag
+    /**
+     * constructor for record with a flag
+     * 
+     * @param i
+     *            the byte array representing the id
+     * @param k
+     *            the byte array representing the key
+     * @param f
+     *            the flag for the corresponding run
+     */
     public Record(byte[] i, byte[] k, int f) {
         id = i;
         key = k;

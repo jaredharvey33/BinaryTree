@@ -16,7 +16,16 @@ class Heap<K extends Comparable<K>> {
     private int size; // Maximum size of the heap
     private int n; // Number of things now in heap
 
-    // Constructor supporting preloading of heap contents
+    /**
+     * Constructor supporting preloading of heap contents
+     * 
+     * @param h
+     *            the heap
+     * @param num
+     *            the size of the heap
+     * @param max
+     *            the max size of the heap
+     */
     public Heap(K[] h, int num, int max) {
         heap = h;
         n = num;
