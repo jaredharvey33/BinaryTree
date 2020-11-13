@@ -10,6 +10,9 @@
  * @version 2020.11.09
  * 
  * The heap class used to store the records
+ * 
+ * @param <K>
+ * Generic element that will fill the heap
  */
 class Heap<K extends Comparable<K>> {
     private K[] heap; // Pointer to the heap array
@@ -34,7 +37,12 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // returns the current minimum value in the heap
+    /**
+     * returns the current minimum value in the heap
+     * 
+     * @return
+     *         the min value in the heap
+     */
     public K check() {
         if (n == 0) {
             return null;
@@ -43,43 +51,88 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // Return current size of the heap
+    /**
+     * Return current size of the heap
+     * 
+     * @return
+     *         the size of the heap
+     */
     public int heapsize() {
         return n;
     }
 
 
-    // Resize the heap
+    /**
+     * Resize the heap
+     * 
+     * @param back
+     *            the size to resize the heap to
+     */
     public void sizeBack(int back) {
         n = back;
     }
 
 
-    // Return true if pos a leaf position, false otherwise
+    /**
+     * Checks if element at position is leaf
+     * 
+     * @param pos
+     *            position to check
+     * @return
+     *         Return true if pos a leaf position, false otherwise
+     */
     public boolean isLeaf(int pos) {
         return (pos >= n / 2) && (pos < n);
     }
 
 
-    // Return position for left child of pos
+    /**
+     * Finds the position of the left child of a given element
+     * 
+     * @param pos
+     *            position of element
+     * @return
+     *         Return position for left child of pos
+     */
     public int leftchild(int pos) {
         return 2 * pos + 1;
     }
 
 
-    // Return position for right child of pos
+    /**
+     * Finds the position of the right child of a given element
+     * 
+     * @param pos
+     *            position of element
+     * @return
+     *         Return position for left child of pos
+     */
     public int rightchild(int pos) {
         return 2 * pos + 2;
     }
 
 
-    // Return position for parent
+    /**
+     * Return position for parent
+     * 
+     * @param pos
+     *            position of the element
+     * @return
+     *         the positon of the parent
+     */
     public int parent(int pos) {
         return (pos - 1) / 2;
     }
 
 
-    // Inserts element into heap
+    /**
+     * Inserts record into heap
+     * 
+     * @param key
+     *            key of record to insert
+     * @return
+     *         boolean value indicating if the insert was successful or not
+     */
     public boolean insert(K key) {
         if (n >= size) {
             return false;
@@ -96,14 +149,21 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // Heapify contents of Heap
+    /**
+     * Heapifies contents of Heap
+     */
     public void buildheap() {
         for (int i = n / 2 - 1; i >= 0; i--)
             siftdown(i);
     }
 
 
-    // Put element in its correct place
+    /**
+     * Sifts the elements in the heap
+     * 
+     * @param pos
+     *            position to shift to
+     */
     private void siftdown(int pos) {
         if ((pos < 0) || (pos >= n))
             return; // Illegal position
@@ -119,7 +179,14 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // swaps two elements in the heap
+    /**
+     * Swaps two elements in the heap
+     * 
+     * @param a
+     *            first element to swap
+     * @param b
+     *            second element to swap
+     */
     public void swap(int a, int b) {
         K temp = heap[a];
         heap[a] = heap[b];
@@ -127,7 +194,12 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // Remove and return maximum value
+    /**
+     * Removes the minimum value in the heap
+     * 
+     * @return
+     *         Remove and return minimum value
+     */
     public K removeMin() {
         if (n == 0)
             return null; // Removing from empty heap
@@ -137,7 +209,12 @@ class Heap<K extends Comparable<K>> {
     }
 
 
-    // Returns the current heap
+    /**
+     * Returns the current heap
+     * 
+     * @return
+     *         the current heap
+     */
     public K[] getHeap() {
         return heap;
     }
