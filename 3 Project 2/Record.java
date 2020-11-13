@@ -5,24 +5,27 @@ import java.nio.ByteBuffer;
 // As a Hokie, I will conduct myself with honor and integrity at all times.
 // I will not lie, cheat, or steal, nor will I accept the actions of those who
 // do.
-// -- Ren Robinson (rarobin98)
-
-/**
- * @author Ren Robinson (rarobin98)
- * @version 2020.10.28
- *
+// -- Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+/*
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+ * 
+ * @version 2020.11.09
+ * 
+ * Class used to create and implement methods for a Record
  */
 public class Record implements Comparable<Record> {
     private byte[] id;
     private byte[] key;
     private int flag;
 
+    // constructor for record
     public Record(byte[] i, byte[] k) {
         id = i;
         key = k;
     }
 
 
+    // constructor for record with a flag
     public Record(byte[] i, byte[] k, int f) {
         id = i;
         key = k;
@@ -30,17 +33,21 @@ public class Record implements Comparable<Record> {
     }
 
 
+    // Gets the int value for a record
     public int getInt() {
         return ByteBuffer.wrap(id).getInt();
     }
 
 
+    // Gets the float value for a record
     public float getFloat() {
         return ByteBuffer.wrap(key).getFloat();
     }
 
 
     /**
+     * Gets the flag for a record
+     * 
      * @return the flag
      */
     public int getFlag() {
@@ -49,6 +56,8 @@ public class Record implements Comparable<Record> {
 
 
     /**
+     * Sets the flag of a record
+     * 
      * @param flag
      *            the flag to set
      */
@@ -58,6 +67,8 @@ public class Record implements Comparable<Record> {
 
 
     /**
+     * Gets the id of a record
+     * 
      * @return the id
      */
     public byte[] getId() {
@@ -67,6 +78,8 @@ public class Record implements Comparable<Record> {
 
 
     /**
+     * Sets the id of a record
+     * 
      * @param id
      *            the id to set
      */
@@ -76,6 +89,8 @@ public class Record implements Comparable<Record> {
 
 
     /**
+     * Gets the key for a record
+     * 
      * @return the key
      */
     public byte[] getKey() {
@@ -84,6 +99,9 @@ public class Record implements Comparable<Record> {
 
 
     /**
+     * 
+     * Sets the key for a record
+     * 
      * @param key
      *            the key to set
      */
@@ -93,8 +111,12 @@ public class Record implements Comparable<Record> {
 
 
     /**
+     * Compares two records
+     * 
      * @param o
+     *            record to compare
      * @return
+     *         a value indicating the result of the comparison
      */
     @Override
     public int compareTo(Record o) {
