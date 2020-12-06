@@ -18,54 +18,77 @@
 // during the discussion. I have violated neither the spirit nor
 // letter of this restriction
 
-
 /**
  * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
  * @version 2020.11.23
  *
  */
 public class Pair {
-    
+
     private int loc;
     private int len;
-    
+
+    /**
+     * Constructor for a pair
+     * 
+     * @param location
+     *            offset in file
+     * @param length
+     *            length in file
+     */
     public Pair(int location, int length) {
         loc = location;
         len = length;
     }
-    
+
+
+    /**
+     * toString for a pair
+     */
     public String toString() {
         return "Starting Byte Location: " + loc + ", Size " + len + " bytes";
     }
 
+
     /**
+     * Get the location for a pair
+     * 
      * @return the loc
      */
     public int getLoc() {
         return loc;
     }
 
+
     /**
-     * @param loc the loc to set
+     * Sets the location for a pair
+     * 
+     * @param loc
+     *            the loc to set
      */
     public void setLoc(int loc) {
         this.loc = loc;
     }
 
+
     /**
+     * Gets the length for a pair
+     * 
      * @return the len
      */
     public int getLen() {
         return len;
     }
 
+
     /**
-     * @param len the len to set
+     * Sets the length of a pair
+     * 
+     * @param len
+     *            the len to set
      */
     public void setLen(int len) {
         this.len = len;
     }
-    
-    
 
 }

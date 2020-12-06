@@ -23,71 +23,31 @@
  * @version 2020.11.23
  *
  */
-public class Entry {
+public class HandleTest extends student.TestCase {
 
-    private short flag;
-    private Handle<Pair> handle;
+    
+    Handle<Pair> h1;
+    private Pair p1;
+    private Pair p2;
 
+    
     /**
-     * Empty constructor
+     * sets up the tests classes.
      */
-    public Entry() {
-        flag = 0;
-    }
-
-
-    /**
-     * Constructor for a Entry
-     * 
-     * @param h
-     *            a handle
-     */
-    public Entry(Handle<Pair> h) {
-        handle = h;
-        flag = 1;
-    }
+    public void setUp() {
+        p1 = new Pair(1, 1);
+        p2 = new Pair(2, 2);
+        h1 = new Handle<Pair>(p1,p2);
+        
+    }// end setUp
 
 
     /**
-     * Gets the flag of an entry
-     * 
-     * @return the f
-     *         the flag value
+     * Tests the getSeqID method
      */
-    public short getFlag() {
-        return flag;
+    public void testgetSeqID() {
+        assertEquals(h1.getSeqID(),p1);
     }
 
-
-    /**
-     * Sets the flag for an entry
-     * 
-     * @param f
-     *            the flag to set
-     */
-    public void setFlag(short f) {
-        this.flag = f;
-    }
-
-
-    /**
-     * Gets the handle for an entry
-     * 
-     * @return the handle to get
-     */
-    public Handle<Pair> getHandle() {
-        return handle;
-    }
-
-
-    /**
-     * Sets the handle for an entry
-     * 
-     * @param h
-     *            the handle to set
-     */
-    public void setHandle(Handle<Pair> h) {
-        this.handle = h;
-    }
-
+    
 }

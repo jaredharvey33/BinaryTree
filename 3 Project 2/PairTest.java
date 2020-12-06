@@ -23,71 +23,62 @@
  * @version 2020.11.23
  *
  */
-public class Entry {
+public class PairTest extends student.TestCase {
 
-    private short flag;
-    private Handle<Pair> handle;
+    private Pair p1;
 
     /**
-     * Empty constructor
+     * sets up the tests classes.
      */
-    public Entry() {
-        flag = 0;
+    public void setUp() {
+        p1 = new Pair(1, 1);
+
+    }// end setUp
+
+
+    /**
+     * Tests the toString method
+     */
+    public void testToString() {
+        assertEquals(p1.toString(), "Starting Byte Location: 1, Size 1 bytes");
     }
 
 
     /**
-     * Constructor for a Entry
-     * 
-     * @param h
-     *            a handle
+     * Tests the getLoc method
      */
-    public Entry(Handle<Pair> h) {
-        handle = h;
-        flag = 1;
+    public void testGetLoc() {
+        assertEquals(p1.getLoc(), 1);
+
     }
 
 
     /**
-     * Gets the flag of an entry
-     * 
-     * @return the f
-     *         the flag value
+     * Tests the setLoc method
      */
-    public short getFlag() {
-        return flag;
+    public void testSetLoc() {
+        assertEquals(p1.getLoc(), 1);
+        p1.setLoc(2);
+        assertEquals(p1.getLoc(), 2);
     }
 
 
     /**
-     * Sets the flag for an entry
-     * 
-     * @param f
-     *            the flag to set
+     * Tests the getLen method
      */
-    public void setFlag(short f) {
-        this.flag = f;
+    public void testGetLen() {
+        assertEquals(p1.getLen(), 1);
+
     }
 
 
     /**
-     * Gets the handle for an entry
-     * 
-     * @return the handle to get
+     * Tests the setLen method
      */
-    public Handle<Pair> getHandle() {
-        return handle;
-    }
-
-
-    /**
-     * Sets the handle for an entry
-     * 
-     * @param h
-     *            the handle to set
-     */
-    public void setHandle(Handle<Pair> h) {
-        this.handle = h;
+    public void testSetLen() {
+        assertEquals(p1.getLen(), 1);
+        p1.setLen(2);
+        assertEquals(p1.getLen(), 2);
     }
 
 }
