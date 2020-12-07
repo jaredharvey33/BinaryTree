@@ -1,18 +1,31 @@
+// On my honor:
+//
+// - I have not used source code obtained from another student,
+// or any other unauthorized source, either modified or
+// unmodified.
+//
+// - All source code and documentation used in my program is
+// either my original work, or was derived by me from the
+// source code published in the textbook for this course.
+//
+// - I have not discussed coding details about this project with
+// anyone other than my partner (in the case of a joint
+// submission), instructor, ACM/UPE tutors or the TAs assigned
+// to this course. I understand that I may discuss the concepts
+// of this program with other students, and that another student
+// may help me debug my program so long as neither of us writes
+// anything during the discussion or modifies any computer file
+// during the discussion. I have violated neither the spirit nor
+// letter of this restriction
 
 /**
- *
+ * @author Ren Robinson (rarobin98), Jared Harvey (jharvey33)
+ * @version 2020.11.24
  */
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import student.TestCase;
 
-/**
- * @author Eric
- * @author maellis1
- * @version 11-2-15
- *
- */
 public class DLinkedListTest extends TestCase {
     /**
      * the list we will use
@@ -57,7 +70,7 @@ public class DLinkedListTest extends TestCase {
      * Tests that objects can be removed at the beginning and end and that the
      * size is changed
      */
-    public void testRemoveIndex() {
+    public void testRemove() {
         list.add("A");
         list.add("B");
         assertTrue(list.remove(1));
@@ -254,11 +267,12 @@ public class DLinkedListTest extends TestCase {
      * Tests the toString when there are 0, 1, and 2 objects in the list
      */
     public void testToString() {
-        assertEquals("{}", list.toString());
+        assertEquals("Free Block List: none", list.toString());
         list.add("A");
-        assertEquals("{A}", list.toString());
+        assertEquals("Free Block List:Block 1] A", list.toString());
         list.add("B");
-        assertEquals("{A, B}", list.toString());
+        assertEquals("Free Block List:Block 1] A\r\n" + "Block 2] B", list
+            .toString());
     }
 
 
