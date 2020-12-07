@@ -83,9 +83,10 @@ public class Hashtable<K, V> {
         int idx = i;
         // initial case
         if (table[(idx % 32) + bucket].getFlag() != 1) {
-            insert = idx % table.length;
+            insert = (idx % 32) + bucket;
         }
-        if (mm.getKey(table[(idx % 32) + bucket].getHandle()).equals(key)) {
+        if (table[(idx % 32) + bucket].getFlag() == 1 && mm.getKey(table[(idx
+            % 32) + bucket].getHandle()).equals(key)) {
             return -1;
         }
 
@@ -94,9 +95,10 @@ public class Hashtable<K, V> {
         // loop until every slot is checked
         while ((idx % 32) + bucket != i) {
             if (table[(idx % 32) + bucket].getFlag() != 1 && insert == -2) {
-                insert = idx % table.length;
+                insert = (idx % 32) + bucket;
             }
-            if (mm.getKey(table[(idx % 32) + bucket].getHandle()).equals(key)) {
+            if (table[(idx % 32) + bucket].getFlag() == 1 && mm.getKey(
+                table[(idx % 32) + bucket].getHandle()).equals(key)) {
                 return -1;
             }
             idx++;

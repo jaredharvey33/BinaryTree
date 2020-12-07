@@ -56,6 +56,7 @@ public class DNAdbase {
         RandomAccessFile raf = new RandomAccessFile(memFile, "rw");
         MemoryManager<String> mm = new MemoryManager<>(raf);
         Hashtable<String, Entry> hash = new Hashtable<>(hashSize, mm);
+
         Scanner scan = null;
 
         try {
@@ -83,19 +84,19 @@ public class DNAdbase {
                         + ")");
                 }
                 hash.insert(id, seq, (int)sfold(id, hashSize));
-
             }
             else if (command.equalsIgnoreCase("print")) {
                 hash.print();
             }
             else if (command.equalsIgnoreCase("remove")) {
-
+                
             }
             else if (command.equalsIgnoreCase("search")) {
-
+                
             }
 
         }
+        raf.setLength(0);
         raf.close();
 
     }

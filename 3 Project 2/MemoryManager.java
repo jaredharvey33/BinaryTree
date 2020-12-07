@@ -26,7 +26,7 @@ public class MemoryManager<K> {
 
 
     public Handle<Pair> insert(K sequenceid, K sequence) throws IOException {
-        String id = sequence.toString();
+        String id = sequenceid.toString();
         String seq = sequence.toString();
 
         // convert id and seq to binary
@@ -45,6 +45,7 @@ public class MemoryManager<K> {
     private int writeBinary(byte[] b) throws IOException {
         if (list.isEmpty()) {
             int idx = (int)raf.length();
+            raf.seek(idx);
             raf.write(b);
             return idx;
         }
@@ -52,7 +53,8 @@ public class MemoryManager<K> {
         if (idx == -1) {
             idx = (int)raf.length();
         }
-        raf.write(b, idx, b.length);
+        raf.seek(idx);
+        raf.write(b);
         return idx;
     }
 
@@ -127,12 +129,13 @@ public class MemoryManager<K> {
 
 
     public String getKey(Handle<Pair> handle) throws IOException {
-        int offset = handle.getSeq().getLoc();
-        int length = (handle.getSeq().getLen() + 3) / 4;
+        int offset = handle.getSeqID().getLoc();
+        int length = (handle.getSeqID().getLen() + 3) / 4;
         byte[] b = new byte[length];
-        raf.read(b, offset, length);
-        String id = binaryToString(b, handle.getSeq().getLen());
-        return "";
+        raf.seek(offset);
+        raf.read(b);
+        String id = binaryToString(b, handle.getSeqID().getLen());
+        return id;
     }
 
 
@@ -143,13 +146,86 @@ public class MemoryManager<K> {
      */
     private String binaryToString(byte[] b, int len) {
         String s = "";
-        int idx = 0;
+        int idx = -1;
         int bit = 7;
-        
-        for (int i = 0; i< len; i++) {
-            
+
+        for (int i = 0; i < len; i++) {
+            if (i % 4 == 0) {
+                idx++;
+                bit = 7;
+            }
+
+            // check two bits at a time to determine character to append
+
+            if ((b[idx] & (1 << (bit))) == 0) {
+                bit--;
+                if ((b[idx] & (1 << (bit))) == 0) {
+                    bit--;
+                    s = s.concat("A");
+                }
+                else {
+                    bit--;
+                    s = s.concat("C");
+                }
+            }
+            else {
+                bit--;
+                if ((b[idx] & (1 << (bit))) == 0) {
+                    bit--;
+                    s = s.concat("G");
+                }
+                else {
+                    bit--;
+                    s = s.concat("T");
+                }
+            }
         }
         return s;
+    }
+
+
+    public void remove(Handle<Pair> h) {
+        int idLoc = h.getSeqID().getLoc();
+        int idLen = h.getSeqID().getLen();
+        idLen = (idLen + 3) / 4;
+        int seqLoc = h.getSeq().getLoc();
+        int seqLen = h.getSeq().getLen();
+        seqLen = (seqLen + 3) / 4;
+        Pair freeID = new Pair(idLoc, idLen);
+        Pair freeSeq = new Pair(seqLoc, seqLen);
+
+        addFreeBlock(freeID);
+        list.add(freeID);
+        list.add(freeSeq);
+    }
+
+
+    private void addFreeBlock(Pair free) {
+        int idx = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if (free.getLoc() < list.get(i).getLoc()) {
+                idx = i;
+                break;
+            }
+        }
+        
+        // check if blocks need to be merged
+        if (idx - 1 >= 0) {
+            if (list.get(idx - 1).getLoc() + list.get(idx - 1).getLen() == free
+                .getLoc()) {
+                list.get(idx - 1).setLen(list.get(idx - 1).getLen() + free
+                    .getLen());
+            }
+        }
+        else if (idx + 1 < list.size()) {
+            if (free.getLen() + free.getLoc() == list.get(idx).getLoc()) {
+                
+            }
+        }
+        else {
+            list.add(idx, free);
+        }
+
     }
 
 
